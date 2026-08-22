@@ -1,0 +1,17 @@
+# Text files are normalised to LF in the repository and checked out with native
+# line endings. Everything listed below is exempt from that conversion.
+* text=auto
+
+# SOLIDWORKS macros are OLE compound binaries. Line-ending conversion would
+# corrupt them silently - git usually detects binary content on its own, but
+# these files are too important to leave to detection.
+*.swp binary
+*.swb binary
+
+# Images and other binaries
+*.png binary
+*.bmp binary
+*.ico binary
+*.psd binary
+*.msi binary
+*.dll binary

@@ -1,0 +1,16 @@
+# Build output — recreated by build.ps1
+build/
+tests/bin/
+
+# Vendored WiX toolset (116 MB). build.ps1 downloads it if missing;
+# the exact version and URL are pinned in tools/wix/SOURCE.txt.
+tools/wix/
+
+# Built installers. These are published as GitHub Releases, not committed.
+releases/
+
+
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

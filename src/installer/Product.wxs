@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MacroDeck MSI. Registry entries below mirror exactly what
+  "RegAsm /codebase MacroDeck.dll" writes (captured via RegAsm /regfile dry run)
+  plus the SolidWorks add-in keys from MacroDeckAddin.RegisterFunction, so no
+  custom actions are needed and uninstall/rollback are fully transactional.
+
+  Variables supplied by build.ps1:
+    BinDir           - folder containing the built DLLs (the "build" folder)
+    InstallerDir     - this folder (for license.rtf and macrodeck.ico)
+    ProductVersion   - e.g. 1.0.0
+    AssemblyVersion  - e.g. 1.0.0.0 (must match AssemblyInfo.cs)
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="MacroDeck"
+           Language="1033"
+           Version="$(var.ProductVersion)"
+           Manufacturer="MacroDeck"
+           UpgradeCode="B44E1D30-6A72-4D1B-8F2E-C95A03E67D11">
+
+    <Package InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Description="MacroDeck - SolidWorks macro library toolbar" />
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version of MacroDeck is already installed. Uninstall it first to install an older version." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="MacroDeck" />
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="CmpMacroDeckDll" Guid="7C21A8F4-0B3D-4E96-A1C7-D84E52F90B23">
+        <File Id="FileMacroDeckDll" Source="$(var.BinDir)\MacroDeck.dll" KeyPath="yes" />
+      </Component>
+      <!-- The SolidWorks.Interop assemblies are deliberately NOT installed.
+           They are resolved at run time from the SOLIDWORKS installation
+           already on the machine - see src\InteropResolver.cs, which explains
+           why a copy at install time could not work in any case. -->
+
+      <!-- .NET COM registration (what RegAsm /codebase would write). -->
+      <Component Id="CmpComRegistration" Guid="E16B490A-8D57-4C23-97F0-A2C48B35E961">
+        <RegistryKey Root="HKCR" Key="MacroDeck.Addin">
+          <RegistryValue Type="string" Value="MacroDeck.MacroDeckAddin" KeyPath="yes" />
+          <RegistryKey Key="CLSID">
+            <RegistryValue Type="string" Value="{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}" />
+          </RegistryKey>
+        </RegistryKey>
+
+        <RegistryKey Root="HKCR" Key="CLSID\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}">
+          <RegistryValue Type="string" Value="MacroDeck.MacroDeckAddin" />
+          <RegistryKey Key="InprocServer32">
+            <RegistryValue Type="string" Value="mscoree.dll" />
+            <RegistryValue Name="ThreadingModel" Type="string" Value="Both" />
+            <RegistryValue Name="Class" Type="string" Value="MacroDeck.MacroDeckAddin" />
+            <RegistryValue Name="Assembly" Type="string" Value="MacroDeck, Version=$(var.AssemblyVersion), Culture=neutral, PublicKeyToken=null" />
+            <RegistryValue Name="RuntimeVersion" Type="string" Value="v4.0.30319" />
+            <RegistryValue Name="CodeBase" Type="string" Value="file:///[#FileMacroDeckDll]" />
+            <RegistryKey Key="$(var.AssemblyVersion)">
+              <RegistryValue Name="Class" Type="string" Value="MacroDeck.MacroDeckAddin" />
+              <RegistryValue Name="Assembly" Type="string" Value="MacroDeck, Version=$(var.AssemblyVersion), Culture=neutral, PublicKeyToken=null" />
+              <RegistryValue Name="RuntimeVersion" Type="string" Value="v4.0.30319" />
+              <RegistryValue Name="CodeBase" Type="string" Value="file:///[#FileMacroDeckDll]" />
+            </RegistryKey>
+          </RegistryKey>
+          <RegistryKey Key="ProgId">
+            <RegistryValue Type="string" Value="MacroDeck.Addin" />
+          </RegistryKey>
+          <RegistryKey Key="Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}"
+                       ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes" />
+        </RegistryKey>
+
+        <!-- SolidWorks add-in listing (Tools > Add-Ins). Description/Title must
+             match the constants in MacroDeckAddin.cs. -->
+        <RegistryKey Root="HKLM" Key="SOFTWARE\SolidWorks\Addins\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}">
+          <RegistryValue Type="integer" Value="0" />
+          <RegistryValue Name="Description" Type="string" Value="Turns a folder of macros into a SolidWorks toolbar" />
+          <RegistryValue Name="Title" Type="string" Value="MacroDeck" />
+        </RegistryKey>
+      </Component>
+
+      <!-- Load-at-startup flag for the installing user (same behaviour as the
+           bat installer). HKCU inside a per-machine package is intentional;
+           the matching ICE38/57/64 checks are suppressed at link time. -->
+      <Component Id="CmpStartupRegistration" Guid="48A2D7F3-C90E-4B18-A65D-7F30B1E52C09">
+        <RegistryValue Root="HKCU"
+                       Key="Software\SolidWorks\AddInsStartup\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="MainFeature" Title="MacroDeck" Level="1">
+      <ComponentRef Id="CmpMacroDeckDll" />
+      <ComponentRef Id="CmpComRegistration" />
+      <ComponentRef Id="CmpStartupRegistration" />
+    </Feature>
+
+    <Icon Id="MacroDeckIco" SourceFile="$(var.InstallerDir)\macrodeck.ico" />
+    <Property Id="ARPPRODUCTICON" Value="MacroDeckIco" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.InstallerDir)\license.rtf" />
+    <UIRef Id="WixUI_Minimal" />
+  </Product>
+</Wix>
+
