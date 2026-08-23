@@ -33,20 +33,17 @@ Dates are taken from the built installers.
   If you later reinstall 0.6.2 or earlier, it will start with an empty Library
   Manager, because the folder it reads no longer exists.
 
-- **Known issue, upgraders only: an empty `MacroDeck` tab is left behind.** If you
-  had a MacroDeck build installed, SOLIDWORKS keeps its own record of that tab
-  and shows it alongside the new MacroShelf one. It is empty and does nothing.
+- **The old MacroDeck tab goes away on upgrade.** SOLIDWORKS ties its
+  CommandManager tabs to an add-in's COM identity, so simply renaming the add-in
+  left it convinced this was the same thing under a new name — and it kept
+  showing a MacroDeck tab beside the MacroShelf one. MacroShelf now registers
+  under a new identity, so the old tab is not drawn at all.
 
-  SOLIDWORKS holds on to it somewhere that is not reachable from the add-in.
-  Its registry entries were removed and it still came back on the next start,
-  with no reference to the old name left anywhere in `HKCU\Software\SolidWorks`
-  — so this is SOLIDWORKS' own state, not something MacroShelf writes or can
-  clear. `RemoveCommandGroup2` does not reach it either: that only affects a
-  group the *running* add-in registered, and MacroShelf's group carries the new
-  title.
+  Two consequences worth knowing about, both one-off:
 
-  To get rid of it: right-click the CommandManager, **Tabs**, and untick
-  *MacroDeck*. A clean install has nothing to remove.
+  - **The toolbar's position resets** the first time you run 0.8.0.
+  - **You may need to tick MacroShelf once** in *Tools ▸ Add-Ins* if it does not
+    load on the first start after upgrading.
 
 ---
 
