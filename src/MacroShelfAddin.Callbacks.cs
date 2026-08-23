@@ -1,9 +1,9 @@
 // Generated file - SolidWorks invokes toolbar callbacks by method name, so every
 // macro slot and every flyout needs a concrete method. Counts must match the
 // MaxMacroCommands / MaxFlyouts constants.
-namespace MacroDeck
+namespace MacroShelf
 {
-    public partial class MacroDeckAddin
+    public partial class MacroShelfAddin
     {
         internal const int MaxMacroCommands = 250;
         internal const int MaxFlyouts = 100;

@@ -1,13 +1,13 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("MacroDeck")]
+[assembly: AssemblyTitle("MacroShelf")]
 [assembly: AssemblyDescription("SolidWorks macro library launcher")]
-[assembly: AssemblyProduct("MacroDeck")]
+[assembly: AssemblyProduct("MacroShelf")]
 [assembly: AssemblyCompany("James Debono")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 James Debono. MIT Licence.")]
 // Fourth field = test build number. 0 for a release; bump it for each build
-// handed over for testing. See build.ps1 and MacroDeckAddin.VersionString().
+// handed over for testing. See build.ps1 and MacroShelfAddin.VersionString().
 [assembly: AssemblyVersion("0.7.2.0")]
 [assembly: AssemblyFileVersion("0.7.2.0")]
 [assembly: ComVisible(false)]

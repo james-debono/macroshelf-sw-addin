@@ -1,5 +1,5 @@
-# Builds MacroDeck.dll with the C# compiler that ships with Windows and
-# packages releases\MacroDeck-<version>.msi using the vendored WiX toolset.
+# Builds MacroShelf.dll with the C# compiler that ships with Windows and
+# packages releases\MacroShelf-<version>.msi using the vendored WiX toolset.
 # The version comes from AssemblyVersion in src\AssemblyInfo.cs.
 $ErrorActionPreference = "Stop"
 
@@ -60,21 +60,21 @@ New-Item -ItemType Directory -Force -Path $out | Out-Null
 $sources = Get-ChildItem $src -Filter *.cs | ForEach-Object { $_.FullName }
 
 # Artwork embedded into the DLL. Every PNG in src\assets is embedded as
-# "MacroDeck.<file name>", which is the name IconFactory asks for - so adding a
+# "MacroShelf.<file name>", which is the name IconFactory asks for - so adding a
 # new icon is a matter of dropping the file in and referencing it there, with
 # no build change. Each has a drawn fallback, so a missing file is not fatal.
 $assetsDir = Join-Path $src "assets"
 $resourceArgs = @()
 if (Test-Path $assetsDir) {
     foreach ($art in Get-ChildItem $assetsDir -Filter *.png | Sort-Object Name) {
-        $resourceArgs += "/resource:$($art.FullName),MacroDeck.$($art.Name)"
-        Write-Host "  embedding MacroDeck.$($art.Name)"
+        $resourceArgs += "/resource:$($art.FullName),MacroShelf.$($art.Name)"
+        Write-Host "  embedding MacroShelf.$($art.Name)"
     }
 }
 
 $cscArgs = @(
     "/nologo", "/target:library", "/platform:anycpu", "/optimize+",
-    "/out:$out\MacroDeck.dll",
+    "/out:$out\MacroShelf.dll",
     "/reference:$interops\SolidWorks.Interop.sldworks.dll",
     "/reference:$interops\SolidWorks.Interop.swconst.dll",
     "/reference:System.dll",
@@ -97,8 +97,8 @@ $prodVer = "$($Matches[1]).$($Matches[2]).$($Matches[3])"
 
 # An MSI ProductVersion carries only three fields, so every test build of a given
 # version looks identical in Add/Remove Programs. The fourth field distinguishes
-# them, so it goes in the file name: a release is MacroDeck-0.7.0.msi, a test build
-# is MacroDeck-0.7.0.2.msi. Set the revision back to 0 when cutting the release.
+# them, so it goes in the file name: a release is MacroShelf-0.7.0.msi, a test build
+# is MacroShelf-0.7.0.2.msi. Set the revision back to 0 when cutting the release.
 $revision = [int]$Matches[4]
 if ($revision -gt 0) {
     $fileVer = "$prodVer.$revision"
@@ -120,7 +120,7 @@ New-Item -ItemType Directory -Force -Path $releases | Out-Null
     (Join-Path $installerDir "Product.wxs")
 if ($LASTEXITCODE -ne 0) { throw "candle failed" }
 
-$msi = Join-Path $releases "MacroDeck-$fileVer.msi"
+$msi = Join-Path $releases "MacroShelf-$fileVer.msi"
 & (Join-Path $wix "light.exe") -nologo -ext WixUIExtension -spdb `
     -sice:ICE38 -sice:ICE57 -sice:ICE64 `
     -out $msi "$obj\Product.wixobj"

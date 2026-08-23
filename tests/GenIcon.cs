@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using MacroDeck;
+using MacroShelf;
 
-// Packs the MacroDeck library glyph into a multi-size .ico (PNG-compressed
+// Packs the MacroShelf library glyph into a multi-size .ico (PNG-compressed
 // entries, supported since Vista) for the MSI's Add/Remove Programs icon.
 internal static class GenIcon
 {

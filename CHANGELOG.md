@@ -11,7 +11,7 @@ Dates are taken from the built installers.
 
 ## 0.7.2 — 2026-08-22
 
-- **First public release.** MacroDeck's source is now on GitHub under the MIT
+- **First public release.** MacroShelf's source is now on GitHub under the MIT
   licence, and the update check points at it.
 
 - **Fixed: Check for updates never found anything.** The endpoints were hard-coded
@@ -23,13 +23,13 @@ Dates are taken from the built installers.
   behaviour below and the extra Customize rows, so neither is discovered by
   surprise.
 
-- **Partly fixed: a repositioned classic toolbar.** Drag the MacroDeck toolbar
+- **Partly fixed: a repositioned classic toolbar.** Drag the MacroShelf toolbar
   somewhere else and it stayed there for the session, then reappeared at the
   default position next time SOLIDWORKS started. It now holds across restarts —
   **as long as the library is not changed.**
 
   Removing a command group takes a flag saying whether to remove only the runtime
-  registration or the toolbar's registry entry as well. MacroDeck removed the
+  registration or the toolbar's registry entry as well. MacroShelf removed the
   registry entry — and that entry is where SOLIDWORKS records where you docked the
   toolbar. It was set that way in 0.7.0 while trying to stop the duplicate
   **Tools > Customize > Toolbars** rows, which it did not do. So it was costing a
@@ -37,7 +37,7 @@ Dates are taken from the built installers.
 
   That alone was not enough. `CreateCommandGroup2` also takes a flag telling
   SOLIDWORKS to discard everything it saved about the command group — including
-  the docked position — and MacroDeck always passed it. It now asks for that only
+  the docked position — and MacroShelf always passed it. It now asks for that only
   when the set of enabled macros has actually changed, so an unchanged library
   leaves your toolbar exactly where you put it.
 
@@ -48,8 +48,8 @@ Dates are taken from the built installers.
 
 ## 0.7.1 — 2026-08-15
 
-- **The installer installs a single file, `MacroDeck.dll`.** The SOLIDWORKS API
-  interop assemblies are loaded when MacroDeck runs, from the SOLIDWORKS
+- **The installer installs a single file, `MacroShelf.dll`.** The SOLIDWORKS API
+  interop assemblies are loaded when MacroShelf runs, from the SOLIDWORKS
   installation already on the machine — the same one the add-in exists to talk to.
 
   This is also the only approach that works across releases: the assemblies are
@@ -65,7 +65,7 @@ Dates are taken from the built installers.
   build time; the drawn versions remain as a fallback, so a missing file degrades
   to a usable icon instead of breaking the toolbar.
 
-- **Check for updates**, in the Library menu. Asks GitHub whether a newer MacroDeck
+- **Check for updates**, in the Library menu. Asks GitHub whether a newer MacroShelf
   has been released and offers to open the releases page. Nothing is downloaded and
   nothing is installed — the most it does is hand a URL to your browser.
 
@@ -153,12 +153,12 @@ Dates are taken from the built installers.
   were previously discarded inside empty `catch` blocks, so a failed removal was
   invisible until someone opened the Customize dialog.
 
-- **The Library Manager title now shows the version** — `MacroDeck - Library
+- **The Library Manager title now shows the version** — `MacroShelf - Library
   Manager (0.7.0)`. Read from `AssemblyVersion`, so it cannot drift from the build.
 
 - **Test builds are identifiable.** The fourth version field marks a build handed
-  over for testing: a release is `MacroDeck-0.7.0.msi`, a test build is
-  `MacroDeck-0.7.0.2.msi`, and the Library Manager title shows the fourth field
+  over for testing: a release is `MacroShelf-0.7.0.msi`, a test build is
+  `MacroShelf-0.7.0.2.msi`, and the Library Manager title shows the fourth field
   when it is non-zero. An MSI ProductVersion has only three fields, so without this
   every test build of a version is indistinguishable once installed.
 
@@ -166,8 +166,8 @@ Dates are taken from the built installers.
 
 - **Third-party attribution.** Added `THIRD-PARTY-NOTICES.md`, a third-party
   section on the installer's licence screen, and a note in the README, so it is
-  clear which components MacroDeck builds against and that the MIT licence covers
-  MacroDeck's own code only.
+  clear which components MacroShelf builds against and that the MIT licence covers
+  MacroShelf's own code only.
 - No functional change.
 
 ## 0.6.1 — 2026-08-09

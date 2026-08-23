@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // Modern Vista-style folder picker (the same dialog SolidWorks uses for
     // File > Open), reached via the IFileOpenDialog COM API because WinForms

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // One macro: a folder containing exactly one macro file, plus its own
     // optional icon and description.

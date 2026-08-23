@@ -5,12 +5,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // SOLIDWORKS' add-in interface, declared here rather than taken from
     // SolidWorks.Interop.swpublished.dll.
     //
-    // This is what lets MacroDeck load with no SOLIDWORKS assembly present.
+    // This is what lets MacroShelf load with no SOLIDWORKS assembly present.
     // The CLR must load every interface a type implements *before* any of that
     // type's code runs, so a class implementing the real ISwAddin cannot be
     // created at all unless swpublished.dll is already reachable - and no
@@ -33,12 +33,12 @@ namespace MacroDeck
     }
 
     // Finds the SOLIDWORKS API assemblies on the machine that is running them,
-    // instead of MacroDeck carrying its own copies.
+    // instead of MacroShelf carrying its own copies.
     //
     // It has to go through AssemblyResolve rather than a copy alongside the
     // add-in, because the assemblies are strong-named and their version moves
     // with each SOLIDWORKS release - 30.5.0.49 for 2022, 32.5.0.48 for 2024,
-    // 33.5.0.53 for 2025. MacroDeck is compiled against the oldest so that one
+    // 33.5.0.53 for 2025. MacroShelf is compiled against the oldest so that one
     // build serves all three, and ordinary strong-name binding is an
     // exact-version match, so a fixed reference to one version would simply
     // fail to bind against another. AssemblyResolve is the documented escape
@@ -52,7 +52,7 @@ namespace MacroDeck
         private static bool _installed;
         private static string _folder;
 
-        // Called from MacroDeckAddin's static constructor, which the CLR runs
+        // Called from MacroShelfAddin's static constructor, which the CLR runs
         // before the add-in object is created and therefore before any method
         // body that mentions a SOLIDWORKS type is compiled.
         public static void Install()
@@ -101,7 +101,7 @@ namespace MacroDeck
 
         // The add-in runs inside SLDWORKS.exe, so the running application's own
         // folder is the authoritative answer and needs no registry lookup. The
-        // rest are fallbacks, ending with MacroDeck's own folder so that an
+        // rest are fallbacks, ending with MacroShelf's own folder so that an
         // installation which still has the assemblies beside it keeps working.
         internal static string RedistFolder()
         {
@@ -208,9 +208,9 @@ namespace MacroDeck
             try
             {
                 string dir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MacroDeck");
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MacroShelf");
                 Directory.CreateDirectory(dir);
-                File.AppendAllText(Path.Combine(dir, "macrodeck.log"),
+                File.AppendAllText(Path.Combine(dir, "macroshelf.log"),
                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
                     + "  interop resolver: " + message + Environment.NewLine);
             }
@@ -221,9 +221,9 @@ namespace MacroDeck
     // The static constructor lives with the resolver so the ordering is obvious:
     // the CLR runs it before the add-in object is created, and therefore before
     // any method body mentioning a SOLIDWORKS type is compiled.
-    public partial class MacroDeckAddin
+    public partial class MacroShelfAddin
     {
-        static MacroDeckAddin()
+        static MacroShelfAddin()
         {
             InteropResolver.Install();
         }

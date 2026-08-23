@@ -4,7 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using MacroDeck;
+using MacroShelf;
 
 // Exercises LibraryScanner, Settings, IconFactory and SwpVersionReader
 // (everything that runs outside SolidWorks) against the 0.6.0 two-level
@@ -44,7 +44,7 @@ internal static class SmokeTest
 
     private static int Main()
     {
-        string root = Path.Combine(Path.GetTempPath(), "macrodeck_smoke_" + Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(Path.GetTempPath(), "macroshelf_smoke_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
 
         // --- valid: one macro in its own folder = plain button ---
@@ -122,7 +122,7 @@ internal static class SmokeTest
 
         // --- multi-library merge, prefs, ordering ---
         Settings.SettingsPathOverride = Path.Combine(root, "settings_test.json");
-        string lib2 = Path.Combine(Path.GetTempPath(), "macrodeck_smoke2_" + Guid.NewGuid().ToString("N"));
+        string lib2 = Path.Combine(Path.GetTempPath(), "macroshelf_smoke2_" + Guid.NewGuid().ToString("N"));
         Macro(Path.Combine(lib2, "Zip Export"), "zip.swp");
 
         ScanResult merged = LibraryScanner.ScanAll(new string[] { root, lib2, Path.Combine(root, "nope") });
@@ -391,8 +391,8 @@ internal static class SmokeTest
         // GitHub's release payload, trimmed to the fields that matter. Extra
         // fields must be ignored rather than upset the parse.
         string payload = "{\"url\":\"https://api.github.com/repos/x/y/releases/1\","
-            + "\"tag_name\":\"v1.2.3\",\"name\":\"MacroDeck 1.2.3\",\"draft\":false,"
-            + "\"prerelease\":false,\"assets\":[{\"name\":\"MacroDeck-1.2.3.msi\",\"size\":1179648}],"
+            + "\"tag_name\":\"v1.2.3\",\"name\":\"MacroShelf 1.2.3\",\"draft\":false,"
+            + "\"prerelease\":false,\"assets\":[{\"name\":\"MacroShelf-1.2.3.msi\",\"size\":1179648}],"
             + "\"body\":\"Notes with \\\"quotes\\\" and a } brace\"}";
         Check(UpdateChecker.ParseTagName(payload) == "v1.2.3",
             "tag_name read from a realistic release payload, got "

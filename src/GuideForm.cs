@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // The Library > Guide window: a modeless popup explaining how to
     // structure the macro library. Content is embedded HTML rendered by the
@@ -42,7 +42,7 @@ namespace MacroDeck
 
         private GuideForm()
         {
-            Text = "MacroDeck - Library Guide";
+            Text = "MacroShelf - Library Guide";
             StartPosition = FormStartPosition.CenterScreen;
             Size = new Size(760, 720);
             MinimumSize = new Size(540, 420);
@@ -118,7 +118,7 @@ namespace MacroDeck
 </head>
 <body>
 
-<h1>MacroDeck library guide</h1>
+<h1>MacroShelf library guide</h1>
 <p class='muted'>How to organise your macro library folder so it becomes a tidy toolbar.</p>
 
 <h2>The rule</h2>
@@ -162,7 +162,7 @@ My Macro Library\               &lt;-- the folder you pick in Library &gt; Setup
 </ul>
 
 <h2>If a macro doesn't appear</h2>
-<p>MacroDeck only shows folders that follow the rule above. Anything else is
+<p>MacroShelf only shows folders that follow the rule above. Anything else is
 listed under <b class='k'>&quot;Not shown&quot;</b> at the bottom of the
 Library Manager, with the reason. The usual causes:</p>
 <ul>
@@ -185,7 +185,7 @@ Library Manager, with the reason. The usual causes:</p>
       display scaling. Smaller images get upscaled and can look soft.</li>
   <li>For BMP files, the colour of the <b class='k'>top-left corner pixel</b>
       becomes transparent. PNG files can use real transparency instead.</li>
-  <li>No image in the folder? MacroDeck generates a coloured tile with the
+  <li>No image in the folder? MacroShelf generates a coloured tile with the
       folder's first letter.</li>
   <li><b class='k'>Design tip:</b> SolidWorks shows icons at roughly 20-40 px,
       so a 128 px master gets scaled well down. Use chunky strokes and preview
@@ -198,7 +198,7 @@ Library Manager, with the reason. The usual causes:</p>
 <ul>
   <li>SolidWorks macros: <b class='k'>.swp</b> (and legacy <b class='k'>.swb</b>).</li>
   <li>A macro should have a normal entry point (<b>Sub main</b>) - if it runs
-      from Tools &gt; Macro &gt; Run, it will run from MacroDeck.</li>
+      from Tools &gt; Macro &gt; Run, it will run from MacroShelf.</li>
 </ul>
 
 <h2>Descriptions (hover text)</h2>
@@ -284,7 +284,7 @@ you &mdash; it never changes the library folders themselves.</p>
 
 <h2>Checking for updates</h2>
 <p><b class='k'>Library &gt; Check for updates</b> asks GitHub whether a newer
-MacroDeck has been released and tells you what it finds. If there is one, it
+MacroShelf has been released and tells you what it finds. If there is one, it
 offers to open the releases page in your browser &mdash; you download and install
 the MSI yourself, the same way you installed this one.</p>
 <ul>

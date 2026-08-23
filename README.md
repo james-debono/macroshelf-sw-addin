@@ -1,6 +1,6 @@
-# MacroDeck — SolidWorks macro library toolbar
+# MacroShelf — SolidWorks macro library toolbar
 
-MacroDeck is a SolidWorks add-in that turns a folder of macros on your PC into a
+MacroShelf is a SolidWorks add-in that turns a folder of macros on your PC into a
 CommandManager tab. Point it at your macro library once, and every macro shows up
 as a toolbar button with its own icon — no more digging through Tools > Macro > Run.
 
@@ -15,14 +15,14 @@ need.
 2. Double-click the MSI, click Install, and accept the administrator prompt.
    - The installer is unsigned, so Windows SmartScreen may warn about an
      unknown publisher — click **More info > Run anyway**.
-3. Start SolidWorks and open any document. The **MacroDeck** tab appears in the
+3. Start SolidWorks and open any document. The **MacroShelf** tab appears in the
    CommandManager. If you don't see it:
-   - Tick **MacroDeck** under **Tools > Add-Ins** (both columns), and/or
-   - Right-click any CommandManager tab name and tick **MacroDeck** in the list.
+   - Tick **MacroShelf** under **Tools > Add-Ins** (both columns), and/or
+   - Right-click any CommandManager tab name and tick **MacroShelf** in the list.
 
 ## First use
 
-1. Click the **MacroDeck** tab.
+1. Click the **MacroShelf** tab.
 2. Click **Library > Setup** to open the Library Manager, click
    **Add Library…** and select the folder that contains your macro library.
 3. The toolbar populates when you click OK. Whenever you add or remove macros,
@@ -142,12 +142,12 @@ written by other people, and nothing is wrong.
 
 ## Checking for updates
 
-**Library > Check for updates** asks GitHub whether a newer MacroDeck has been
+**Library > Check for updates** asks GitHub whether a newer MacroShelf has been
 released, and tells you what it finds. If there is one, it offers to open the
 releases page in your browser — you download and install the MSI yourself, the
 same way you installed this one.
 
-**It only ever checks when you click it.** MacroDeck does not contact GitHub when
+**It only ever checks when you click it.** MacroShelf does not contact GitHub when
 SolidWorks starts, does not check on a timer, and sends nothing about you or your
 macros — the request is the same one your browser would make opening the releases
 page. Nothing is downloaded and nothing is installed automatically.
@@ -161,8 +161,8 @@ way — it says so and points you at the releases page. Nothing else is affected
 
 ## If you use the classic toolbars
 
-Most people use the **MacroDeck tab** on the CommandManager, which always shows
-your current macros and needs nothing explained. But MacroDeck also provides a
+Most people use the **MacroShelf tab** on the CommandManager, which always shows
+your current macros and needs nothing explained. But MacroShelf also provides a
 classic floating toolbar, under **Tools > Customize > Toolbars**, and that one has
 a quirk worth knowing about before it surprises you.
 
@@ -174,28 +174,28 @@ switch a macro on or off, or run a scan, and the toolbar's buttons stop working 
 they grey out and can't be clicked. Restart SolidWorks and the toolbar comes back
 working, with your new set of macros.
 
-This is a SolidWorks limitation rather than something MacroDeck can fix. A toolbar
+This is a SolidWorks limitation rather than something MacroShelf can fix. A toolbar
 is tied to the set of commands that existed when it was created, and changing your
 library necessarily replaces them.
 
-**You'll also see extra entries appear**, named like `MacroDeck (temp2 - do not
+**You'll also see extra entries appear**, named like `MacroShelf (temp2 - do not
 use)`. Ignore them — they work for the rest of the session but are discarded when
-SolidWorks closes, taking your choice with them. Only the plain **`MacroDeck`**
+SolidWorks closes, taking your choice with them. Only the plain **`MacroShelf`**
 entry survives a restart. They're labelled precisely so you don't tick one and lose
 it later.
 
-**The MacroDeck tab is not affected by any of this** — it updates immediately and
+**The MacroShelf tab is not affected by any of this** — it updates immediately and
 always matches your Library Manager. Nothing is ever unreachable; if the toolbar is
 greyed out, your macros are still on the tab.
 
 ## Known issues
 
 Stated plainly rather than left to be discovered. All of these are in the classic
-toolbars; **the MacroDeck tab has none of them.**
+toolbars; **the MacroShelf tab has none of them.**
 
 ### A dragged toolbar loses its position when you change your library
 
-Drag the MacroDeck toolbar somewhere you prefer and it stays there across
+Drag the MacroShelf toolbar somewhere you prefer and it stays there across
 restarts — **as long as you don't change your library.** Switch a macro on or off
 in the Library Manager and the next start puts it back at the default position,
 sometimes leaving one dead greyed-out button behind.
@@ -231,7 +231,7 @@ costs money and is not worth it for a free tool at 0.x.
 
 ## Uninstall
 
-**Settings > Apps > Installed apps > MacroDeck > Uninstall** (or re-run the MSI
+**Settings > Apps > Installed apps > MacroShelf > Uninstall** (or re-run the MSI
 and choose Remove).
 
 ## Building from source
@@ -270,22 +270,22 @@ real debugging, and the traps — is in
 
 - **Tab missing after install** — open a document first (CommandManager tabs only
   show when a document is open). Then check Tools > Add-Ins.
-- **A macro fails to run** — MacroDeck looks for a parameterless entry point
+- **A macro fails to run** — MacroShelf looks for a parameterless entry point
   (preferring `Sub main`). Make sure the macro runs from Tools > Macro > Run.
 - **Toolbar didn't update after editing the library** — click **Library > Scan**.
 - **Buttons show but icons look wrong** — check the folder's BMP; remember the
   top-left pixel colour becomes transparent.
 - **Your settings** — libraries, button order and on/off states — are in
-  `%AppData%\MacroDeck\settings.json`. Generated icons are cached alongside it and
+  `%AppData%\MacroShelf\settings.json`. Generated icons are cached alongside it and
   are safe to delete; they are rebuilt on the next start.
-- **If something fails**, MacroDeck writes details (including stack traces) to
-  `%AppData%\MacroDeck\macrodeck.log` — include it when reporting a problem.
+- **If something fails**, MacroShelf writes details (including stack traces) to
+  `%AppData%\MacroShelf\macroshelf.log` — include it when reporting a problem.
 
 ## Licence
 
 MIT — see [LICENSE](LICENSE). Free to use, modify and share.
 
-The installer places a single file, `MacroDeck.dll`, and nothing else. MacroDeck
+The installer places a single file, `MacroShelf.dll`, and nothing else. MacroShelf
 uses the **SOLIDWORKS API assemblies** belonging to Dassault Systèmes but does not
 contain or include them — it loads them when it runs, from the SOLIDWORKS
 installation you already have. See

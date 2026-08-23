@@ -8,7 +8,7 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 using IStream = System.Runtime.InteropServices.ComTypes.IStream;
 using StreamStat = System.Runtime.InteropServices.ComTypes.STATSTG;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // Reads a macro's own version number out of its .swp file.
     //
@@ -42,7 +42,7 @@ namespace MacroDeck
         //
         // Two to four parts. Older macros are commonly versioned "1.0", and
         // showing that beats showing nothing; a fourth part identifies a build
-        // handed over for testing, which is what MacroDeck's own fourth field
+        // handed over for testing, which is what MacroShelf's own fourth field
         // does. Five or more is not a version number anybody means.
         //
         // Deliberately forgiving about the things people get wrong without

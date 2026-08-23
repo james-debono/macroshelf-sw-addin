@@ -5,7 +5,7 @@ using System.Linq;
 using System.Web.Script.Serialization;
 using Microsoft.Win32;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // Preferences for one toolbar button or one macro, keyed by folder path.
     // Order is only meaningful for top-level buttons.
@@ -33,7 +33,7 @@ namespace MacroDeck
         // enabled macros, hashed. SolidWorks is only told to discard the
         // toolbar's saved layout when this changes, so a toolbar the user has
         // dragged somewhere stays there across restarts. See
-        // MacroDeckAddin.ToolbarSignature.
+        // MacroShelfAddin.ToolbarSignature.
         public string ToolbarSignature;
 
         public Dictionary<string, ButtonPref> Buttons =
@@ -44,7 +44,7 @@ namespace MacroDeck
             new Dictionary<string, ButtonPref>(StringComparer.OrdinalIgnoreCase);
     }
 
-    // Persists user preferences as JSON in %AppData%\MacroDeck\settings.json.
+    // Persists user preferences as JSON in %AppData%\MacroShelf\settings.json.
     internal static class Settings
     {
         public const int MaxLibraries = 10;
@@ -52,7 +52,7 @@ namespace MacroDeck
         // Tests point this at a scratch file so they never touch real settings.
         internal static string SettingsPathOverride;
 
-        private const string LegacyRegistryKey = "Software\\MacroDeck";
+        private const string LegacyRegistryKey = "Software\\MacroShelf";
         private const string LegacyLibraryPathValue = "LibraryPath";
 
         public static SettingsData Load()
@@ -199,7 +199,7 @@ namespace MacroDeck
             }
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "MacroDeck", "settings.json");
+                "MacroShelf", "settings.json");
         }
 
         private static void LogError(string message)
@@ -207,9 +207,9 @@ namespace MacroDeck
             try
             {
                 string dir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MacroDeck");
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MacroShelf");
                 Directory.CreateDirectory(dir);
-                File.AppendAllText(Path.Combine(dir, "macrodeck.log"),
+                File.AppendAllText(Path.Combine(dir, "macroshelf.log"),
                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "  " + message + "\r\n");
             }
             catch { }

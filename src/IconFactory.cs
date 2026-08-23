@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // Builds the PNG icon strips SolidWorks 2016+ expects (one strip per size,
     // commands side by side), from user BMP/PNG files or generated fallbacks.
@@ -133,11 +133,11 @@ namespace MacroDeck
             return bmp;
         }
 
-        // The MacroDeck library icon. Uses the artwork embedded at build time
+        // The MacroShelf library icon. Uses the artwork embedded at build time
         // (src\assets\library.png) when present, otherwise draws a fallback.
         public static Bitmap MakeLibraryIcon()
         {
-            Bitmap embedded = LoadEmbedded("MacroDeck.library.png");
+            Bitmap embedded = LoadEmbedded("MacroShelf.library.png");
             if (embedded != null)
             {
                 return embedded;
@@ -209,27 +209,27 @@ namespace MacroDeck
         // artwork does not have to touch any code.
         public static Bitmap MakeSetupIcon()
         {
-            return LoadEmbedded("MacroDeck.setup.png") ?? DrawSetupIcon();
+            return LoadEmbedded("MacroShelf.setup.png") ?? DrawSetupIcon();
         }
 
         public static Bitmap MakeGuideIcon()
         {
-            return LoadEmbedded("MacroDeck.guide.png") ?? DrawGuideIcon();
+            return LoadEmbedded("MacroShelf.guide.png") ?? DrawGuideIcon();
         }
 
         public static Bitmap MakeScanIcon()
         {
-            return LoadEmbedded("MacroDeck.scan.png") ?? DrawScanIcon();
+            return LoadEmbedded("MacroShelf.scan.png") ?? DrawScanIcon();
         }
 
         public static Bitmap MakeUpdateIcon()
         {
-            return LoadEmbedded("MacroDeck.update.png") ?? DrawUpdateIcon();
+            return LoadEmbedded("MacroShelf.update.png") ?? DrawUpdateIcon();
         }
 
         public static Bitmap MakeUpdateAvailableIcon()
         {
-            return LoadEmbedded("MacroDeck.update-available.png") ?? DrawUpdateAvailableIcon();
+            return LoadEmbedded("MacroShelf.update-available.png") ?? DrawUpdateAvailableIcon();
         }
 
         private static Bitmap DrawSetupIcon()

@@ -1,4 +1,4 @@
-# MacroDeck — development notes
+# MacroShelf — development notes
 
 The SOLIDWORKS API findings behind this add-in, and the traps. `README.md` covers
 what it does and how to use it.
@@ -38,7 +38,7 @@ only.
 
 ## Why the API assemblies are resolved at run time
 
-MacroDeck installs **one file** and finds the SOLIDWORKS API assemblies on the
+MacroShelf installs **one file** and finds the SOLIDWORKS API assemblies on the
 machine running it. Keep it that way — the MSI's file table is a one-line check
 (`SELECT FileName FROM File`), and anything else appearing in it is a regression.
 
@@ -68,13 +68,13 @@ Re-declaring an interface for interoperability is ordinary COM practice, and
 everything used here is documented.
 
 Testable offline, and worth re-running after any change to add-in loading: put
-`MacroDeck.dll` alone in an empty folder, install no resolver, load it, create the
+`MacroShelf.dll` alone in an empty folder, install no resolver, load it, create the
 type and invoke `ConnectToSW`. A `FileNotFoundException` or `TypeLoadException`
 means the dependency has crept back.
 
 ## Command groups, toolbars and IDs
 
-This is the awkward part of the API, and most of MacroDeck's scar tissue is here.
+This is the awkward part of the API, and most of MacroShelf's scar tissue is here.
 
 ### Callbacks are strings
 
@@ -182,7 +182,7 @@ fails if the correction is removed.
 - **An uncomparable tag must be reported as unknown, not as "up to date."** WiX
   tags a release `wix3141rtm`, which parsed to 0.0.0 and was reported as up to
   date — a false reassurance.
-- `System.Threading` must not be imported into `MacroDeckAddin.cs`, or every bare
+- `System.Threading` must not be imported into `MacroShelfAddin.cs`, or every bare
   `Timer` becomes ambiguous.
 
 ## Other findings

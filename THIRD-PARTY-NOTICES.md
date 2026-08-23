@@ -1,14 +1,14 @@
 # Third-party notices
 
-MacroDeck itself is © 2026 James Debono and released under the MIT licence — see
+MacroShelf itself is © 2026 James Debono and released under the MIT licence — see
 [LICENSE](LICENSE).
 
-The MIT licence covers **MacroDeck's own code only**. The components below belong
+The MIT licence covers **MacroShelf's own code only**. The components below belong
 to their respective owners. Listing them here does not place them under the MIT
 licence.
 
-**This repository and the installer contain no third-party code.** MacroDeck is
-one assembly, `MacroDeck.dll`, and that is all the MSI installs.
+**This repository and the installer contain no third-party code.** MacroShelf is
+one assembly, `MacroShelf.dll`, and that is all the MSI installs.
 
 ---
 
@@ -16,7 +16,7 @@ one assembly, `MacroDeck.dll`, and that is all the MSI installs.
 
 **Owner:** Dassault Systèmes SolidWorks Corporation
 
-MacroDeck is built against three assemblies from a local SOLIDWORKS
+MacroShelf is built against three assemblies from a local SOLIDWORKS
 installation's `…\SOLIDWORKS\api\redist\` folder:
 
 | File | Purpose |
@@ -25,7 +25,7 @@ installation's `…\SOLIDWORKS\api\redist\` folder:
 | `SolidWorks.Interop.swconst.dll` | API enumerations and constants |
 | `SolidWorks.Interop.swpublished.dll` | previously, the add-in interface |
 
-**They are referenced at build time only.** At run time MacroDeck loads them from
+**They are referenced at build time only.** At run time MacroShelf loads them from
 the SOLIDWORKS installation already present on the machine — the same installation
 the add-in exists to talk to. No copy of any of these files is contained in this
 repository, in the installer, or in any release.
@@ -35,12 +35,12 @@ declared in `src/InteropResolver.cs` from its published IID and signatures.
 
 ### Why they are resolved at run time
 
-Anyone running MacroDeck necessarily has SOLIDWORKS installed, so the assemblies
+Anyone running MacroShelf necessarily has SOLIDWORKS installed, so the assemblies
 are always already on the machine — and resolving them there is the only approach
 that actually works across releases.
 
 The assemblies are strong-named and their version moves with each SOLIDWORKS
-release (30.5.0.49 for 2022, 32.5.0.48 for 2024, 33.5.0.53 for 2025). MacroDeck is
+release (30.5.0.49 for 2022, 32.5.0.48 for 2024, 33.5.0.53 for 2025). MacroShelf is
 compiled against the oldest so that a single build serves every supported release,
 and ordinary strong-name binding demands an exact version match — so a fixed
 reference to one version cannot load another. Resolving through

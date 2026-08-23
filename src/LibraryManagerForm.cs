@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     // The Library > Setup window: manage up to 10 macro libraries, switch
     // libraries, buttons and individual macros on or off, and drag buttons to
@@ -81,7 +81,7 @@ namespace MacroDeck
 
         private void BuildLayout()
         {
-            Text = "MacroDeck - Library Manager (" + MacroDeckAddin.VersionString() + ")";
+            Text = "MacroShelf - Library Manager (" + MacroShelfAddin.VersionString() + ")";
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(720, 700);
             MinimumSize = new Size(620, 560);
@@ -495,8 +495,8 @@ namespace MacroDeck
         {
             if (_settings.Libraries.Count >= Settings.MaxLibraries)
             {
-                MessageBox.Show(this, "MacroDeck supports up to " + Settings.MaxLibraries + " libraries.",
-                    "MacroDeck", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "MacroShelf supports up to " + Settings.MaxLibraries + " libraries.",
+                    "MacroShelf", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             string picked = FolderPicker.Show(null, "Select a macro library folder");
@@ -512,7 +512,7 @@ namespace MacroDeck
                 if (string.Equals(existingNorm, normalized, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show(this, "That folder is already in the list.",
-                        "MacroDeck", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        "MacroShelf", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
             }
@@ -525,7 +525,7 @@ namespace MacroDeck
             if (_grid.SelectedRows.Count == 0)
             {
                 MessageBox.Show(this, "Select a library in the list first.",
-                    "MacroDeck", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    "MacroShelf", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             int index = _grid.SelectedRows[0].Index;
@@ -535,10 +535,10 @@ namespace MacroDeck
             }
             string library = _settings.Libraries[index];
             DialogResult answer = MessageBox.Show(this,
-                "Remove this library from MacroDeck?\r\n\r\n" + library +
+                "Remove this library from MacroShelf?\r\n\r\n" + library +
                 "\r\n\r\nThe folder and its macros are not deleted - only the toolbar buttons "
                 + "and their saved settings.",
-                "MacroDeck", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                "MacroShelf", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (answer != DialogResult.Yes)
             {
                 return;

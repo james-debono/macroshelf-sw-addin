@@ -14,17 +14,17 @@ using SolidWorks.Interop.swconst;
 // InteropResolver.cs instead, so this type can be loaded with no SOLIDWORKS
 // assembly present. See the comment there.
 
-namespace MacroDeck
+namespace MacroShelf
 {
     [ComVisible(true)]
     [Guid(AddinGuid)]
-    [ProgId("MacroDeck.Addin")]
-    public partial class MacroDeckAddin : ISwAddin
+    [ProgId("MacroShelf.Addin")]
+    public partial class MacroShelfAddin : ISwAddin
     {
         public const string AddinGuid = "1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90";
-        internal const string AddinTitle = "MacroDeck";
+        internal const string AddinTitle = "MacroShelf";
         internal const string AddinDescription = "Turns a folder of macros into a SolidWorks toolbar";
-        private const string TabName = "MacroDeck";
+        private const string TabName = "MacroShelf";
 
         // The version as shown to a person, read from AssemblyVersion so it can
         // never drift from the build.
@@ -119,7 +119,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("BuildUi failed during startup: " + ex);
-                Warn("MacroDeck: building the toolbar failed: " + ex.Message +
+                Warn("MacroShelf: building the toolbar failed: " + ex.Message +
                      "\r\nDetails were written to " + LogPath());
             }
             return true;
@@ -238,7 +238,7 @@ namespace MacroDeck
             libraryDef.IsLibrary = true;
             RefreshLibraryItems(libraryDef);
             int libraryCmdId = CreateFlyout(libraryDef, "Library",
-                "Set up or rescan the MacroDeck macro library", libraryMain, libraryItems);
+                "Set up or rescan the MacroShelf macro library", libraryMain, libraryItems);
 
             // Switching macros off can collapse a drop-down into a plain
             // button, so the split follows the enabled count, not the folder.
@@ -277,7 +277,7 @@ namespace MacroDeck
             //
             // SolidWorks binds a classic toolbar to the command group that made it,
             // and a rebuild must make a new group (§7.3b). So every rebuild used to
-            // add another "MacroDeck" row to Tools > Customize > Toolbars, and those
+            // add another "MacroShelf" row to Tools > Customize > Toolbars, and those
             // extra toolbars are traps: measured 2026-08-14, only the FIRST group of
             // a session survives a restart. _generation resets to 0 on load, so that
             // is always 8001 - a toolbar belonging to 8002 or later has no group in
@@ -290,7 +290,7 @@ namespace MacroDeck
             //
             // The title carries the generation as a fallback: if a row ever does
             // appear for a later group, it is identifiable rather than another
-            // identical "MacroDeck".
+            // identical "MacroShelf".
             // Every group gets a toolbar. 0.7.0.7 tried giving rebuilt groups
             // HasToolbar = false, to stop Tools > Customize > Toolbars gaining a
             // row per rebuild - and it DID stop that, but it also dropped every
@@ -302,7 +302,7 @@ namespace MacroDeck
             //
             // The tab is the primary UI, so extra Customize rows are the lesser
             // evil. The generation in the title is what is left of the idea: the
-            // durable toolbar is plain "MacroDeck" - only the first group of a
+            // durable toolbar is plain "MacroShelf" - only the first group of a
             // session survives a restart - and every later one is labelled
             // temporary, so the traps are at least visible.
             string groupTitle = (_generation == 1)
@@ -364,7 +364,7 @@ namespace MacroDeck
                 }
 
                 group = _cmdMgr.CreateCommandGroup2(_groupId, groupTitle,
-                    "MacroDeck macros", "MacroDeck macros", -1, ignorePrevious, ref errors);
+                    "MacroShelf macros", "MacroShelf macros", -1, ignorePrevious, ref errors);
                 if (group == null)
                 {
                     Log("CreateCommandGroup2 returned null (id " + _groupId + ", errors " + errors + ")");
@@ -620,12 +620,12 @@ namespace MacroDeck
             if (known != null && known.Outcome == UpdateOutcome.UpdateAvailable)
             {
                 def.Items.Add(NewFlyoutItem("Update available - " + known.LatestVersion,
-                    "Open the MacroDeck releases page in your browser",
+                    "Open the MacroShelf releases page in your browser",
                     IconUpdateAvailable, "OnOpenReleases"));
             }
 
             def.Items.Add(NewFlyoutItem("Check for updates",
-                "Ask GitHub whether a newer MacroDeck has been released",
+                "Ask GitHub whether a newer MacroShelf has been released",
                 IconCheckForUpdates, "OnCheckForUpdates"));
         }
 
@@ -753,7 +753,7 @@ namespace MacroDeck
         // RemoveCommandGroup2's second argument is RuntimeOnly. Passing TRUE removes
         // the command group but *keeps its toolbar registration in the registry*, so
         // every rebuild left one behind and Tools > Customize > Toolbars grew an extra
-        // "MacroDeck" row each time a library was toggled or a scan run. Measured:
+        // "MacroShelf" row each time a library was toggled or a scan run. Measured:
         // one new row per rebuild, collapsing back to one on restart.
         //
         // FALSE removes the toolbar information as well, which is what we want -
@@ -829,7 +829,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("Setup failed: " + ex);
-                Warn("MacroDeck setup failed: " + ex.Message);
+                Warn("MacroShelf setup failed: " + ex.Message);
             }
         }
 
@@ -842,7 +842,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("Guide failed: " + ex);
-                Warn("MacroDeck: could not open the guide: " + ex.Message);
+                Warn("MacroShelf: could not open the guide: " + ex.Message);
             }
         }
 
@@ -856,7 +856,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("Opening the releases page failed: " + ex);
-                Warn("MacroDeck: could not open your browser. The releases page is at\r\n"
+                Warn("MacroShelf: could not open your browser. The releases page is at\r\n"
                     + UpdateChecker.ReleasesPageUrl);
             }
         }
@@ -870,7 +870,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("Update check failed to start: " + ex);
-                Warn("MacroDeck: could not check for updates: " + ex.Message);
+                Warn("MacroShelf: could not check for updates: " + ex.Message);
             }
         }
 
@@ -879,7 +879,7 @@ namespace MacroDeck
             SettingsData settings = Settings.Load();
             if (settings.Libraries.Count == 0)
             {
-                Warn("MacroDeck: no macro libraries have been added yet. Use Library > Setup first.");
+                Warn("MacroShelf: no macro libraries have been added yet. Use Library > Setup first.");
                 return;
             }
             ScheduleRebuild();
@@ -941,7 +941,7 @@ namespace MacroDeck
                 _updateRunning = false;
             });
             worker.IsBackground = true;
-            worker.Name = "MacroDeck update check";
+            worker.Name = "MacroShelf update check";
             worker.Start();
 
             if (_updateTimer == null)
@@ -980,7 +980,7 @@ namespace MacroDeck
                 case UpdateOutcome.UpdateAvailable:
                     // "Update available" also appears in the Library flyout from
                     // now on, for as long as the answer stays fresh.
-                    if (Ask("MacroDeck " + status.LatestVersion + " is available."
+                    if (Ask("MacroShelf " + status.LatestVersion + " is available."
                         + "\r\n\r\nYou have " + installed + "."
                         + "\r\n\r\nOpen the releases page in your browser?"))
                     {
@@ -989,11 +989,11 @@ namespace MacroDeck
                     break;
 
                 case UpdateOutcome.UpToDate:
-                    Inform("MacroDeck " + installed + " is up to date.");
+                    Inform("MacroShelf " + installed + " is up to date.");
                     break;
 
                 case UpdateOutcome.NoReleases:
-                    Inform("No MacroDeck releases have been published yet."
+                    Inform("No MacroShelf releases have been published yet."
                         + "\r\n\r\nYou have " + installed + ".");
                     break;
 
@@ -1028,7 +1028,7 @@ namespace MacroDeck
                 // commands and swap the tab boxes first, and only then remove
                 // the old generation - the tab never goes empty, so focus
                 // should never leave it. The restore below is a safety net.
-                bool restoreTab = IsMacroDeckTabActive();
+                bool restoreTab = IsMacroShelfTabActive();
                 int staleGroupId = _groupId;
                 bool staleGroupCreated = _groupCreated;
                 List<int> staleFlyoutIds = _activeFlyoutIds;
@@ -1042,7 +1042,7 @@ namespace MacroDeck
             catch (Exception ex)
             {
                 Log("Rebuild failed: " + ex);
-                Warn("MacroDeck: rebuilding the toolbar failed: " + ex.Message +
+                Warn("MacroShelf: rebuilding the toolbar failed: " + ex.Message +
                      "\r\nDetails were written to " + LogPath());
             }
         }
@@ -1064,7 +1064,7 @@ namespace MacroDeck
             }
         }
 
-        private bool IsMacroDeckTabActive()
+        private bool IsMacroShelfTabActive()
         {
             try
             {
@@ -1130,7 +1130,7 @@ namespace MacroDeck
             {
                 if (!File.Exists(cmd.MacroPath))
                 {
-                    Warn("MacroDeck: macro file not found:\r\n" + cmd.MacroPath +
+                    Warn("MacroShelf: macro file not found:\r\n" + cmd.MacroPath +
                          "\r\n\r\nUse Library > Scan to refresh the toolbar.");
                     return;
                 }
@@ -1147,14 +1147,14 @@ namespace MacroDeck
                 }
                 if (!ok)
                 {
-                    Warn("MacroDeck: failed to run macro:\r\n" + cmd.MacroPath +
+                    Warn("MacroShelf: failed to run macro:\r\n" + cmd.MacroPath +
                          "\r\n(error code " + error + ")");
                 }
             }
             catch (Exception ex)
             {
                 Log("RunMacroAt(" + index + ") failed for " + cmd.MacroPath + ": " + ex);
-                Warn("MacroDeck: failed to run macro:\r\n" + cmd.MacroPath + "\r\n" + ex.Message);
+                Warn("MacroShelf: failed to run macro:\r\n" + cmd.MacroPath + "\r\n" + ex.Message);
             }
         }
 
@@ -1337,14 +1337,14 @@ namespace MacroDeck
         private static string AppDataDir()
         {
             string dir = Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "MacroDeck");
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "MacroShelf");
             Directory.CreateDirectory(dir);
             return dir;
         }
 
         private static string LogPath()
         {
-            return Path.Combine(AppDataDir(), "macrodeck.log");
+            return Path.Combine(AppDataDir(), "macroshelf.log");
         }
 
         private static void Log(string message)

@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 
-namespace MacroDeck
+namespace MacroShelf
 {
     internal enum UpdateOutcome
     {
@@ -30,7 +30,7 @@ namespace MacroDeck
         }
     }
 
-    // Asks GitHub whether a newer MacroDeck has been released.
+    // Asks GitHub whether a newer MacroShelf has been released.
     //
     // Manual only. The user clicking "Check for updates" is the consent, and
     // that one decision removes the need for a first-run prompt, a settings
@@ -43,9 +43,9 @@ namespace MacroDeck
     // security surface to get wrong.
     internal static class UpdateChecker
     {
-        public const string ReleasesPageUrl = "https://github.com/james-debono/macrodeck-sw-addin/releases";
+        public const string ReleasesPageUrl = "https://github.com/james-debono/macroshelf-sw-addin/releases";
         private const string LatestReleaseApi =
-            "https://api.github.com/repos/james-debono/macrodeck-sw-addin/releases/latest";
+            "https://api.github.com/repos/james-debono/macroshelf-sw-addin/releases/latest";
 
         // Tests point this at a repository that actually has releases, so the
         // request, the TLS handshake and the parse can be exercised for real
@@ -132,7 +132,7 @@ namespace MacroDeck
                 request.Timeout = RequestTimeoutMs;
                 request.ReadWriteTimeout = RequestTimeoutMs;
                 // GitHub rejects requests that do not identify themselves.
-                request.UserAgent = "MacroDeck/" + (installedVersion == null ? "0" : installedVersion);
+                request.UserAgent = "MacroShelf/" + (installedVersion == null ? "0" : installedVersion);
                 request.Accept = "application/vnd.github+json";
 
                 string json;
@@ -269,7 +269,7 @@ namespace MacroDeck
         }
 
         // Compares the first three fields and no more. A release is numbered
-        // x.y.z; MacroDeck's fourth field only ever marks a build handed round
+        // x.y.z; MacroShelf's fourth field only ever marks a build handed round
         // for testing, and nobody should be told that a released x.y.z is
         // "newer" than the test build of x.y.z they are running.
         internal static int Compare(string left, string right)
