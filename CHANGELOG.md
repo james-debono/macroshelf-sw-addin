@@ -37,11 +37,13 @@ Dates are taken from the built installers.
   had a MacroDeck build installed, SOLIDWORKS keeps its own record of that tab
   and shows it alongside the new MacroShelf one. It is empty and does nothing.
 
-  This is a side effect of how the toolbar position is preserved: the add-in
-  deliberately leaves its command group alive at shutdown (0.7.2), so SOLIDWORKS
-  keeps the tab keyed on the old name and the rename orphans it. The add-in
-  cannot remove it — `RemoveCommandGroup2` only reaches a group the *running*
-  add-in registered, and MacroShelf's group has the new title.
+  SOLIDWORKS holds on to it somewhere that is not reachable from the add-in.
+  Its registry entries were removed and it still came back on the next start,
+  with no reference to the old name left anywhere in `HKCU\Software\SolidWorks`
+  — so this is SOLIDWORKS' own state, not something MacroShelf writes or can
+  clear. `RemoveCommandGroup2` does not reach it either: that only affects a
+  group the *running* add-in registered, and MacroShelf's group carries the new
+  title.
 
   To get rid of it: right-click the CommandManager, **Tabs**, and untick
   *MacroDeck*. A clean install has nothing to remove.
