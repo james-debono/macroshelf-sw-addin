@@ -112,6 +112,7 @@ namespace MacroShelf
             _swApp.SetAddinCallbackInfo2(0, this, _addinId);
             _cmdMgr = _swApp.GetCommandManager(cookie);
             CleanIconCache();
+            CleanUpRenamedRegistrations();
             try
             {
                 BuildUi();
@@ -763,6 +764,74 @@ namespace MacroShelf
         // Both calls report failure and neither used to be checked, so a failed
         // removal was silent. They are logged now: this is the one place that can
         // leak registrations, and a leak is invisible until someone opens Customize.
+        // One-time cleanup of the registrations left behind by the MacroDeck
+        // builds, run once on the first start after upgrading.
+        //
+        // Why anything is left at all: since 0.7.2 the add-in deliberately does
+        // NOT remove its command group at shutdown, because that is what keeps a
+        // dragged toolbar where the user put it (see DisconnectFromSW and
+        // RemoveCommands below). SOLIDWORKS therefore keeps the registration
+        // between sessions - and uninstalling the old MSI does not take it away,
+        // because it belongs to SOLIDWORKS rather than to the installer.
+        //
+        // The registration is keyed by (add-in CLSID, group UserID). The CLSID
+        // did not change across the rename and the UserIDs are the same
+        // arithmetic, so what is registered under those ids at startup - before
+        // BuildUi creates anything - is precisely the leftover from the old
+        // build. Removing it here, with RuntimeOnly = FALSE so the toolbar
+        // information goes too, is what clears the stale tab.
+        //
+        // This is the one place FALSE is correct. Everywhere else it is TRUE, to
+        // preserve toolbar position; the cost of FALSE here is that position
+        // resets once on upgrade, which is expected on a rename anyway.
+        //
+        // Generation ids are swept rather than guessed: _generation resets to 0
+        // on load and advances once per rebuild, so the id the old build left
+        // registered depends on how many times its library was rebuilt in its
+        // final session. A miss just returns an error, which is not logged -
+        // only removals that actually succeeded are.
+        private void CleanUpRenamedRegistrations()
+        {
+            if (_cmdMgr == null)
+            {
+                return;
+            }
+            SettingsData settings = Settings.Load();
+            if (settings.RenameCleanupDone)
+            {
+                return;
+            }
+
+            int groups = 0;
+            int flyouts = 0;
+            for (int generation = 1; generation <= MaxGenerations; generation++)
+            {
+                try
+                {
+                    if (_cmdMgr.RemoveCommandGroup2(8000 + generation, false)
+                        == (int)swRemoveCommandGroupErrors.swRemoveCommandGroup_Success)
+                    {
+                        groups++;
+                    }
+                }
+                catch { }
+                try
+                {
+                    if (_cmdMgr.RemoveFlyoutGroup(5000 + generation))
+                    {
+                        flyouts++;
+                    }
+                }
+                catch { }
+            }
+
+            settings.RenameCleanupDone = true;
+            Settings.Save(settings);
+            Log("Rename cleanup: removed " + groups + " leftover command group(s) and "
+                + flyouts + " flyout(s) from the previous name. Runs once; clear "
+                + "RenameCleanupDone in settings.json to run it again.");
+        }
+
         private void RemoveCommands(int groupId, bool groupCreated, List<int> flyoutIds)
         {
             if (_cmdMgr == null)

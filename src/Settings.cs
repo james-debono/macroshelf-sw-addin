@@ -36,6 +36,17 @@ namespace MacroShelf
         // MacroShelfAddin.ToolbarSignature.
         public string ToolbarSignature;
 
+        // Set once the 0.8.0 rename cleanup has run. The MacroDeck builds left
+        // their command group registered at shutdown deliberately (0.7.2, to
+        // keep the toolbar's position), so uninstalling them does not take the
+        // registration away and SOLIDWORKS still draws a tab for it. The
+        // cleanup removes those registrations once, on the first run after
+        // upgrading. See MacroShelfAddin.CleanUpRenamedRegistrations.
+        //
+        // To make it run again - if a machine still shows the old tab - delete
+        // this line from %AppData%\MacroShelf\settings.json, or set it false.
+        public bool RenameCleanupDone;
+
         public Dictionary<string, ButtonPref> Buttons =
             new Dictionary<string, ButtonPref>(StringComparer.OrdinalIgnoreCase);
 
