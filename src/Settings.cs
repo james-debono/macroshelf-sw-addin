@@ -52,11 +52,21 @@ namespace MacroShelf
         // Tests point this at a scratch file so they never touch real settings.
         internal static string SettingsPathOverride;
 
-        private const string LegacyRegistryKey = "Software\\MacroShelf";
+        // Both legacy names below are historical locations written by earlier
+        // versions. They are deliberately NOT renamed to MacroShelf: they name
+        // where old data actually sits, so renaming them would simply look in
+        // a place that has never existed and silently lose the settings.
+        private const string LegacyRegistryKey = "Software\\MacroDeck";
         private const string LegacyLibraryPathValue = "LibraryPath";
+        private const string LegacyFolderName = "MacroDeck";
+
+        // Tests point this at a scratch folder so the migration never touches
+        // the real %AppData%\MacroDeck.
+        internal static string LegacyFolderOverride;
 
         public static SettingsData Load()
         {
+            MigrateLegacyFolder();
             try
             {
                 string path = SettingsPath();
@@ -189,6 +199,72 @@ namespace MacroShelf
             }
             catch { }
             return data;
+        }
+
+        // 0.8.0 renamed the add-in, which moved settings from
+        // %AppData%\MacroDeck\ to %AppData%\MacroShelf\. Anyone upgrading from
+        // 0.6.2 - the last build that was handed to anybody - would otherwise
+        // find an empty Library Manager, so the old file is brought across on
+        // first run and the old folder is then removed.
+        //
+        // The old folder is deleted only after the copy has been read back and
+        // parsed, so a half-finished migration can never lose the settings:
+        // if anything throws, the original is still there to try again next
+        // time. Deleting is the documented choice - leaving nothing stale
+        // behind - and costs the ability to roll back to 0.6.2 with settings
+        // intact.
+        internal static void MigrateLegacyFolder()
+        {
+            // Never migrate under a test override: the tests point
+            // SettingsPathOverride at a scratch file, and without this guard a
+            // test run would delete the real %AppData%\MacroDeck.
+            if (!string.IsNullOrEmpty(SettingsPathOverride)
+                && string.IsNullOrEmpty(LegacyFolderOverride))
+            {
+                return;
+            }
+
+            try
+            {
+                string newPath = SettingsPath();
+                if (File.Exists(newPath))
+                {
+                    return;
+                }
+
+                string legacyDir = LegacyFolder();
+                string legacyPath = Path.Combine(legacyDir, "settings.json");
+                if (!File.Exists(legacyPath))
+                {
+                    return;
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(newPath));
+                File.Copy(legacyPath, newPath, true);
+
+                // Read the copy back and parse it. Only a file that actually
+                // deserialises counts as migrated.
+                new JavaScriptSerializer()
+                    .Deserialize<SettingsData>(File.ReadAllText(newPath));
+
+                Directory.Delete(legacyDir, true);
+            }
+            catch (Exception ex)
+            {
+                LogError("Could not migrate settings from the previous name: "
+                         + ex.Message);
+            }
+        }
+
+        private static string LegacyFolder()
+        {
+            if (!string.IsNullOrEmpty(LegacyFolderOverride))
+            {
+                return LegacyFolderOverride;
+            }
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                LegacyFolderName);
         }
 
         private static string SettingsPath()

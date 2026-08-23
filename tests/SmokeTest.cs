@@ -249,6 +249,7 @@ internal static class SmokeTest
 
         CheckVersionReader(root);
         CheckUpdateChecker();
+        CheckSettingsMigration();
 
         Directory.Delete(root, true);
         Console.WriteLine(_failures == 0 ? "ALL PASSED" : (_failures + " FAILURES"));
@@ -386,6 +387,83 @@ internal static class SmokeTest
     // deciding whether the released version is newer than the installed one.
     // Getting that comparison wrong would either nag people who are already up
     // to date or stay silent when there is genuinely something to fetch.
+    // The 0.8.0 rename moved settings from %AppData%\MacroDeck\ to
+    // %AppData%\MacroShelf\ and deletes the old folder afterwards. That is a
+    // destructive step on somebody's machine, so it is exercised here against
+    // scratch folders rather than trusted to a read-through.
+    private static void CheckSettingsMigration()
+    {
+        string sandbox = Path.Combine(Path.GetTempPath(),
+            "macroshelf_migrate_" + Guid.NewGuid().ToString("N"));
+        string oldDir = Path.Combine(sandbox, "MacroDeck");
+        string newPath = Path.Combine(sandbox, "MacroShelf", "settings.json");
+        string savedOverride = Settings.SettingsPathOverride;
+
+        try
+        {
+            // --- the real case: old settings present, new absent ---
+            Directory.CreateDirectory(oldDir);
+            File.WriteAllText(Path.Combine(oldDir, "settings.json"),
+                "{\"Libraries\":[\"C:\\\\Macros\"],\"DisabledLibraries\":[]}");
+            File.WriteAllText(Path.Combine(oldDir, "macrodeck.log"), "old log\r\n");
+
+            Settings.SettingsPathOverride = newPath;
+            Settings.LegacyFolderOverride = oldDir;
+            SettingsData migrated = Settings.Load();
+
+            Check(File.Exists(newPath), "migration wrote the new settings file");
+            Check(migrated.Libraries.Count == 1
+                  && migrated.Libraries[0] == "C:\\Macros",
+                "migration carried the library list across");
+            Check(!Directory.Exists(oldDir),
+                "the old folder is removed once the copy parses");
+
+            // --- new settings already present: the old file must not win ---
+            string sandbox2 = Path.Combine(Path.GetTempPath(),
+                "macroshelf_migrate2_" + Guid.NewGuid().ToString("N"));
+            string oldDir2 = Path.Combine(sandbox2, "MacroDeck");
+            string newPath2 = Path.Combine(sandbox2, "MacroShelf", "settings.json");
+            Directory.CreateDirectory(oldDir2);
+            Directory.CreateDirectory(Path.GetDirectoryName(newPath2));
+            File.WriteAllText(Path.Combine(oldDir2, "settings.json"),
+                "{\"Libraries\":[\"C:\\\\Old\"],\"DisabledLibraries\":[]}");
+            File.WriteAllText(newPath2,
+                "{\"Libraries\":[\"C:\\\\Current\"],\"DisabledLibraries\":[]}");
+
+            Settings.SettingsPathOverride = newPath2;
+            Settings.LegacyFolderOverride = oldDir2;
+            SettingsData kept = Settings.Load();
+
+            Check(kept.Libraries.Count == 1 && kept.Libraries[0] == "C:\\Current",
+                "existing settings are not overwritten by the old folder");
+            Check(Directory.Exists(oldDir2),
+                "nothing is deleted when there was nothing to migrate");
+            Directory.Delete(sandbox2, true);
+
+            // --- neither present: a clean install must not throw ---
+            string sandbox3 = Path.Combine(Path.GetTempPath(),
+                "macroshelf_migrate3_" + Guid.NewGuid().ToString("N"));
+            Settings.SettingsPathOverride =
+                Path.Combine(sandbox3, "MacroShelf", "settings.json");
+            Settings.LegacyFolderOverride = Path.Combine(sandbox3, "MacroDeck");
+            Settings.Load();
+            Check(true, "a clean install with no folder either side is a no-op");
+            if (Directory.Exists(sandbox3))
+            {
+                Directory.Delete(sandbox3, true);
+            }
+        }
+        finally
+        {
+            Settings.LegacyFolderOverride = null;
+            Settings.SettingsPathOverride = savedOverride;
+            if (Directory.Exists(sandbox))
+            {
+                Directory.Delete(sandbox, true);
+            }
+        }
+    }
+
     private static void CheckUpdateChecker()
     {
         // GitHub's release payload, trimmed to the fields that matter. Extra
