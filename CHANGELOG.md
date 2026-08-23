@@ -9,6 +9,32 @@ Dates are taken from the built installers.
 
 ---
 
+## 0.8.0 — unreleased
+
+- **Renamed from MacroDeck to MacroShelf.** The previous name belongs to an
+  existing product — Macro Deck by SuchByte, in the Stream Deck space — so it
+  could not go public as it stood. MacroShelf fits the vocabulary the add-in
+  already used: it manages a *library*, and the Library button has always been
+  three book spines on a shelf.
+
+  The add-in, the installer, the DLL and the settings folder all take the new
+  name. **The add-in's CLSID and the installer's UpgradeCode are unchanged**, so
+  this installs over an earlier version as a normal upgrade rather than sitting
+  alongside it.
+
+- **Your settings come across automatically.** Preferences moved from
+  `%AppData%\MacroDeck\` to `%AppData%\MacroShelf\`. On first run the old
+  `settings.json` is copied over and the old folder is then removed, so your
+  library list and per-macro toggles survive the rename without you doing
+  anything. The old folder is deleted only after the copy has been read back and
+  parsed — if anything goes wrong the original is left alone and it tries again
+  next time.
+
+  If you later reinstall 0.6.2 or earlier, it will start with an empty Library
+  Manager, because the folder it reads no longer exists.
+
+---
+
 ## 0.7.2 — 2026-08-22
 
 - **First public release.** MacroShelf's source is now on GitHub under the MIT

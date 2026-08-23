@@ -87,6 +87,30 @@ $cscArgs = @(
 & $csc @cscArgs
 if ($LASTEXITCODE -ne 0) { throw "Compilation failed" }
 
+# ----- verify the embedded artwork actually made it in -----
+# IconFactory asks for these by name and falls back to a drawn icon when the
+# name does not resolve, so a mismatch between the prefix above and the names
+# in IconFactory.cs produces a DLL that builds, installs and runs with the
+# wrong artwork and never says a word. The 0.8.0 rename moved that prefix,
+# which is exactly when this drifts.
+#
+# Read the names back out of the built DLL rather than trusting the source -
+# the same check 0.7.2 used on the update-check endpoints.
+$iconFactory = Get-Content (Join-Path $src "IconFactory.cs") -Raw
+$wanted = [regex]::Matches($iconFactory, 'LoadEmbedded\("([^"]+)"\)') |
+    ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+if ($wanted.Count -eq 0) { throw "No LoadEmbedded calls found in IconFactory.cs" }
+
+$asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom("$out\MacroShelf.dll")
+$embedded = $asm.GetManifestResourceNames()
+$missing = $wanted | Where-Object { $embedded -notcontains $_ }
+if ($missing) {
+    throw ("Embedded artwork missing from the built DLL: " + ($missing -join ", ") +
+           "`nIconFactory.cs asks for these names; the DLL contains: " +
+           ($embedded -join ", "))
+}
+Write-Host "  verified $($wanted.Count) embedded resource name(s) present in the DLL" -ForegroundColor Green
+
 # ----- read the version -----
 $assemblyInfo = Get-Content (Join-Path $src "AssemblyInfo.cs") -Raw
 if ($assemblyInfo -notmatch 'AssemblyVersion\("(\d+)\.(\d+)\.(\d+)\.(\d+)"\)') {
