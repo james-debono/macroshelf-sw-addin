@@ -33,6 +33,19 @@ Dates are taken from the built installers.
   If you later reinstall 0.6.2 or earlier, it will start with an empty Library
   Manager, because the folder it reads no longer exists.
 
+- **Known issue, upgraders only: an empty `MacroDeck` tab is left behind.** If you
+  had a MacroDeck build installed, SOLIDWORKS keeps its own record of that tab
+  and shows it alongside the new MacroShelf one. It is empty and does nothing.
+
+  This is a side effect of how the toolbar position is preserved: the add-in
+  deliberately leaves its command group alive at shutdown (0.7.2), so SOLIDWORKS
+  keeps the tab keyed on the old name and the rename orphans it. The add-in
+  cannot remove it — `RemoveCommandGroup2` only reaches a group the *running*
+  add-in registered, and MacroShelf's group has the new title.
+
+  To get rid of it: right-click the CommandManager, **Tabs**, and untick
+  *MacroDeck*. A clean install has nothing to remove.
+
 ---
 
 ## 0.7.2 — 2026-08-22
