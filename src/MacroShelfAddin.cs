@@ -21,7 +21,21 @@ namespace MacroShelf
     [ProgId("MacroShelf.Addin")]
     public partial class MacroShelfAddin : ISwAddin
     {
-        public const string AddinGuid = "1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90";
+        // Changed for 0.8.0, and deliberately - CONVENTIONS and the handover both
+        // said this must never move. The reason for changing it: sharing the
+        // CLSID with the MacroDeck builds meant SOLIDWORKS saw the add-in as
+        // renamed rather than replaced, so it kept the old tab and there was no
+        // way to reach it. Three attempts failed - deleting the CommandManager
+        // tab records, deleting the Custom API Toolbars entry, and calling
+        // RemoveCommandGroup2 from the add-in, which reaches only groups created
+        // in the current session and reported nothing to remove against intact
+        // registrations.
+        //
+        // A new CLSID makes the uninstall of the old build remove its
+        // registration outright, so SOLIDWORKS has no add-in behind the old tab.
+        // The MSI UpgradeCode is untouched, so this still installs as an upgrade
+        // rather than sitting alongside the previous version.
+        public const string AddinGuid = "7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64";
         internal const string AddinTitle = "MacroShelf";
         internal const string AddinDescription = "Turns a folder of macros into a SolidWorks toolbar";
         private const string TabName = "MacroShelf";
@@ -112,7 +126,6 @@ namespace MacroShelf
             _swApp.SetAddinCallbackInfo2(0, this, _addinId);
             _cmdMgr = _swApp.GetCommandManager(cookie);
             CleanIconCache();
-            CleanUpRenamedRegistrations();
             try
             {
                 BuildUi();
@@ -764,74 +777,6 @@ namespace MacroShelf
         // Both calls report failure and neither used to be checked, so a failed
         // removal was silent. They are logged now: this is the one place that can
         // leak registrations, and a leak is invisible until someone opens Customize.
-        // One-time cleanup of the registrations left behind by the MacroDeck
-        // builds, run once on the first start after upgrading.
-        //
-        // Why anything is left at all: since 0.7.2 the add-in deliberately does
-        // NOT remove its command group at shutdown, because that is what keeps a
-        // dragged toolbar where the user put it (see DisconnectFromSW and
-        // RemoveCommands below). SOLIDWORKS therefore keeps the registration
-        // between sessions - and uninstalling the old MSI does not take it away,
-        // because it belongs to SOLIDWORKS rather than to the installer.
-        //
-        // The registration is keyed by (add-in CLSID, group UserID). The CLSID
-        // did not change across the rename and the UserIDs are the same
-        // arithmetic, so what is registered under those ids at startup - before
-        // BuildUi creates anything - is precisely the leftover from the old
-        // build. Removing it here, with RuntimeOnly = FALSE so the toolbar
-        // information goes too, is what clears the stale tab.
-        //
-        // This is the one place FALSE is correct. Everywhere else it is TRUE, to
-        // preserve toolbar position; the cost of FALSE here is that position
-        // resets once on upgrade, which is expected on a rename anyway.
-        //
-        // Generation ids are swept rather than guessed: _generation resets to 0
-        // on load and advances once per rebuild, so the id the old build left
-        // registered depends on how many times its library was rebuilt in its
-        // final session. A miss just returns an error, which is not logged -
-        // only removals that actually succeeded are.
-        private void CleanUpRenamedRegistrations()
-        {
-            if (_cmdMgr == null)
-            {
-                return;
-            }
-            SettingsData settings = Settings.Load();
-            if (settings.RenameCleanupDone)
-            {
-                return;
-            }
-
-            int groups = 0;
-            int flyouts = 0;
-            for (int generation = 1; generation <= MaxGenerations; generation++)
-            {
-                try
-                {
-                    if (_cmdMgr.RemoveCommandGroup2(8000 + generation, false)
-                        == (int)swRemoveCommandGroupErrors.swRemoveCommandGroup_Success)
-                    {
-                        groups++;
-                    }
-                }
-                catch { }
-                try
-                {
-                    if (_cmdMgr.RemoveFlyoutGroup(5000 + generation))
-                    {
-                        flyouts++;
-                    }
-                }
-                catch { }
-            }
-
-            settings.RenameCleanupDone = true;
-            Settings.Save(settings);
-            Log("Rename cleanup: removed " + groups + " leftover command group(s) and "
-                + flyouts + " flyout(s) from the previous name. Runs once; clear "
-                + "RenameCleanupDone in settings.json to run it again.");
-        }
-
         private void RemoveCommands(int groupId, bool groupCreated, List<int> flyoutIds)
         {
             if (_cmdMgr == null)

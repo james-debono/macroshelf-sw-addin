@@ -48,11 +48,11 @@
         <RegistryKey Root="HKCR" Key="MacroShelf.Addin">
           <RegistryValue Type="string" Value="MacroShelf.MacroShelfAddin" KeyPath="yes" />
           <RegistryKey Key="CLSID">
-            <RegistryValue Type="string" Value="{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}" />
+            <RegistryValue Type="string" Value="{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}" />
           </RegistryKey>
         </RegistryKey>
 
-        <RegistryKey Root="HKCR" Key="CLSID\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}">
+        <RegistryKey Root="HKCR" Key="CLSID\{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}">
           <RegistryValue Type="string" Value="MacroShelf.MacroShelfAddin" />
           <RegistryKey Key="InprocServer32">
             <RegistryValue Type="string" Value="mscoree.dll" />
@@ -77,7 +77,7 @@
 
         <!-- SolidWorks add-in listing (Tools > Add-Ins). Description/Title must
              match the constants in MacroShelfAddin.cs. -->
-        <RegistryKey Root="HKLM" Key="SOFTWARE\SolidWorks\Addins\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\SolidWorks\Addins\{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}">
           <RegistryValue Type="integer" Value="0" />
           <RegistryValue Name="Description" Type="string" Value="Turns a folder of macros into a SolidWorks toolbar" />
           <RegistryValue Name="Title" Type="string" Value="MacroShelf" />
@@ -89,7 +89,7 @@
            the matching ICE38/57/64 checks are suppressed at link time. -->
       <Component Id="CmpStartupRegistration" Guid="48A2D7F3-C90E-4B18-A65D-7F30B1E52C09">
         <RegistryValue Root="HKCU"
-                       Key="Software\SolidWorks\AddInsStartup\{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}"
+                       Key="Software\SolidWorks\AddInsStartup\{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}"
                        Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
