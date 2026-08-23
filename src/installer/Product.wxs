@@ -103,6 +103,47 @@
     <Icon Id="MacroShelfIco" SourceFile="$(var.InstallerDir)\macroshelf.ico" />
     <Property Id="ARPPRODUCTICON" Value="MacroShelfIco" />
 
+    <!-- Two cleanups WiX cannot express declaratively, because neither target
+         is created by the installer and neither name is known until run time.
+         See src\installer\cleanup.vbs.
+
+         Both are Impersonate="yes": they work on HKCU and %AppData%, which
+         must be the installing user's, not the elevated account's. Both are
+         Return="ignore" - a dormant registry key or a leftover settings folder
+         is never worth failing an install or an uninstall over. -->
+    <Binary Id="CleanupScript" SourceFile="$(var.InstallerDir)\cleanup.vbs" />
+
+    <CustomAction Id="RemoveLegacyToolbars"
+                  BinaryKey="CleanupScript"
+                  VBScriptCall="RemoveLegacyToolbars"
+                  Execute="immediate"
+                  Impersonate="yes"
+                  Return="ignore" />
+
+    <CustomAction Id="RemoveUserSettings"
+                  BinaryKey="CleanupScript"
+                  VBScriptCall="RemoveUserSettings"
+                  Execute="immediate"
+                  Impersonate="yes"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <!-- On install only. SOLIDWORKS must not be running, which the README
+           already requires, because it rewrites these keys on exit and would
+           put back anything deleted while it was open. -->
+      <Custom Action="RemoveLegacyToolbars" After="InstallInitialize">
+        NOT Installed
+      </Custom>
+
+      <!-- On a real uninstall only. UPGRADINGPRODUCTCODE is set during the
+           uninstall half of a major upgrade, so upgrading keeps the user's
+           library list and toggles; only deliberately removing MacroShelf
+           discards them. -->
+      <Custom Action="RemoveUserSettings" After="InstallInitialize">
+        REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE
+      </Custom>
+    </InstallExecuteSequence>
+
     <WixVariable Id="WixUILicenseRtf" Value="$(var.InstallerDir)\license.rtf" />
     <UIRef Id="WixUI_Minimal" />
   </Product>
