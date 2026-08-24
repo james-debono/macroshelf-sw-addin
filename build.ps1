@@ -111,6 +111,17 @@ if ($missing) {
 }
 Write-Host "  verified $($wanted.Count) embedded resource name(s) present in the DLL" -ForegroundColor Green
 
+# ----- installer cleanup helper -----
+# A small console app the MSI runs as a custom action, to clear the SOLIDWORKS
+# UI records this add-in leaves behind. Compiled as winexe so no console window
+# flashes during an install; everything it does goes to macroshelf.log instead.
+& $csc /nologo /target:winexe /platform:anycpu /optimize+ `
+    "/out:$out\MacroShelfCleanup.exe" `
+    /reference:System.dll `
+    (Join-Path $installerDir "Cleanup.cs")
+if ($LASTEXITCODE -ne 0) { throw "Cleanup helper compilation failed" }
+Write-Host "  built MacroShelfCleanup.exe" -ForegroundColor Green
+
 # ----- read the version -----
 $assemblyInfo = Get-Content (Join-Path $src "AssemblyInfo.cs") -Raw
 if ($assemblyInfo -notmatch 'AssemblyVersion\("(\d+)\.(\d+)\.(\d+)\.(\d+)"\)') {

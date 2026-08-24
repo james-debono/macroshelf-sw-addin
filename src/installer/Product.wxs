@@ -111,18 +111,23 @@
          must be the installing user's, not the elevated account's. Both are
          Return="ignore" - a dormant registry key or a leftover settings folder
          is never worth failing an install or an uninstall over. -->
-    <Binary Id="CleanupScript" SourceFile="$(var.InstallerDir)\cleanup.vbs" />
+    <!-- A compiled helper, not a script custom action. The VBScript version used
+         WMI's StdRegProv, which was measured reporting success for deletions
+         that never happened, could not see a key PowerShell read without
+         trouble, and has a non-recursive DeleteKey that could never remove a
+         tab record - they all carry GB0/GB1 subkeys. See src\installer\Cleanup.cs. -->
+    <Binary Id="CleanupExe" SourceFile="$(var.BinDir)\MacroShelfCleanup.exe" />
 
     <CustomAction Id="RemoveLegacyToolbars"
-                  BinaryKey="CleanupScript"
-                  VBScriptCall="RemoveLegacyToolbars"
+                  BinaryKey="CleanupExe"
+                  ExeCommand=""
                   Execute="immediate"
                   Impersonate="yes"
                   Return="ignore" />
 
     <CustomAction Id="RemoveUserSettings"
-                  BinaryKey="CleanupScript"
-                  VBScriptCall="RemoveUserSettings"
+                  BinaryKey="CleanupExe"
+                  ExeCommand="--settings"
                   Execute="immediate"
                   Impersonate="yes"
                   Return="ignore" />
@@ -138,13 +143,18 @@
            record whose toolbar record has gone has no title to draw, which is
            where the stray "New Tab" rows in Tools > Customize came from. -->
       <Custom Action="RemoveLegacyToolbars" After="InstallInitialize">
-        NOT Installed OR (REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE)
+        NOT Installed
       </Custom>
 
       <!-- On a real uninstall only. UPGRADINGPRODUCTCODE is set during the
            uninstall half of a major upgrade, so upgrading keeps the user's
            library list and toggles; only deliberately removing MacroShelf
-           discards them. -->
+           discards them.
+
+           This one runs the helper in settings mode, which clears the UI
+           records *as well as* the settings folder - so uninstalling leaves
+           nothing behind, and RemoveLegacyToolbars above stays install-only
+           rather than both firing on an uninstall. -->
       <Custom Action="RemoveUserSettings" After="InstallInitialize">
         REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE
       </Custom>
