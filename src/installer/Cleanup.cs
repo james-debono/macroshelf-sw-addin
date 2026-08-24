@@ -52,6 +52,10 @@ internal static class Cleanup
     private static readonly StringBuilder Log = new StringBuilder();
     private static int _removed;
 
+    // True once the settings folder has actually been deleted, so Write knows
+    // not to recreate it just to log.
+    private static bool _removedSettings;
+
     private static int Main(string[] args)
     {
         bool dryRun = Array.IndexOf(args, "--dry-run") >= 0;
@@ -84,41 +88,93 @@ internal static class Cleanup
     //
     // This is where MacroDeck 0.6.2's library came from during testing on
     // 2026-08-24, after %AppData%\MacroDeck had been migrated away: nothing
-    // was left in AppData, so it fell back to LibraryPath here. Both keys are
-    // this product's own, under its two names.
-    private static readonly string[] OurSettingsKeys =
+    // was left in AppData, so it fell back to LibraryPath here.
+    private const string LegacySettingsKey = @"Software\MacroDeck";
+
+    // The value names this product wrote. Only these are deleted, and the key
+    // itself only goes if nothing is left in it.
+    //
+    // Why not just delete the key: "MacroDeck" is a name this product no longer
+    // owns. Macro Deck by SuchByte is a real and widely used product, and if it
+    // keeps anything under HKCU\Software\MacroDeck then removing the key would
+    // destroy a stranger's settings - the same name collision that forced this
+    // rename, working in the other direction. What SuchByte's app actually
+    // stores there could not be checked from here, so this is written not to
+    // care: anything that is not one of these three values is left alone, and
+    // its presence keeps the key alive.
+    private static readonly string[] LegacySettingsValues =
     {
-        @"Software\MacroDeck",
-        @"Software\MacroShelf"
+        "LibraryPath",      // the library, read by Settings.Migrate
+        "LayoutSignature",  // both written by builds before 0.4.0 and
+        "UiGeneration"      // untouched by anything current
     };
 
     private static void RemoveLegacySettingsKeys(bool dryRun)
     {
-        foreach (string path in OurSettingsKeys)
+        try
         {
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(path))
+            List<string> mine = new List<string>();
+            List<string> theirs = new List<string>();
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(LegacySettingsKey))
             {
                 if (key == null)
                 {
-                    continue;
+                    Note("no legacy settings key to remove");
+                    return;
                 }
+                foreach (string name in key.GetValueNames())
+                {
+                    if (Array.IndexOf(LegacySettingsValues, name) >= 0)
+                    {
+                        mine.Add(name);
+                    }
+                    else
+                    {
+                        theirs.Add(name);
+                    }
+                }
+                theirs.AddRange(key.GetSubKeyNames());
             }
+
+            foreach (string name in mine)
+            {
+                if (dryRun)
+                {
+                    Note("would remove HKCU\\" + LegacySettingsKey + "\\" + name);
+                }
+                else
+                {
+                    using (RegistryKey key =
+                               Registry.CurrentUser.OpenSubKey(LegacySettingsKey, true))
+                    {
+                        if (key != null)
+                        {
+                            key.DeleteValue(name, false);
+                        }
+                    }
+                    Note("removed HKCU\\" + LegacySettingsKey + "\\" + name);
+                }
+                _removed++;
+            }
+
+            if (theirs.Count > 0)
+            {
+                Note("kept HKCU\\" + LegacySettingsKey + ": " + theirs.Count +
+                     " item(s) there are not ours (" + string.Join(", ", theirs.ToArray()) + ")");
+                return;
+            }
+
             if (dryRun)
             {
-                Note("would remove settings key HKCU\\" + path);
-                _removed++;
-                continue;
+                Note("would remove the now-empty HKCU\\" + LegacySettingsKey);
+                return;
             }
-            try
-            {
-                Registry.CurrentUser.DeleteSubKeyTree(path, false);
-                Note("removed settings key HKCU\\" + path);
-                _removed++;
-            }
-            catch (Exception ex)
-            {
-                Note("could not remove HKCU\\" + path + ": " + ex.Message);
-            }
+            Registry.CurrentUser.DeleteSubKey(LegacySettingsKey, false);
+            Note("removed the now-empty HKCU\\" + LegacySettingsKey);
+        }
+        catch (Exception ex)
+        {
+            Note("could not clean HKCU\\" + LegacySettingsKey + ": " + ex.Message);
         }
     }
 
@@ -126,11 +182,12 @@ internal static class Cleanup
     // excludes the uninstall half of an upgrade, so upgrading keeps the user's
     // library list and toggles.
     //
-    // The log lives in that folder, so it is written before the folder goes and
-    // there is deliberately nothing left to read afterwards. That is the point:
-    // a reinstall then starts genuinely clean rather than silently inheriting
-    // the previous settings, which would otherwise mask a failure of the
-    // MacroDeck-to-MacroShelf migration.
+    // Removing it is what makes a reinstall genuinely clean rather than
+    // silently inheriting the previous settings, which would otherwise mask a
+    // failure of the MacroDeck-to-MacroShelf migration.
+    //
+    // The log normally lives in this folder, so once it is gone the log has to
+    // go somewhere else - see Write.
     private static void RemoveSettingsFolder(bool dryRun)
     {
         string dir = Path.Combine(
@@ -150,6 +207,8 @@ internal static class Cleanup
         try
         {
             Directory.Delete(dir, true);
+            // Must be set before Write runs, or the log recreates this folder.
+            _removedSettings = true;
             Note("removed settings folder " + dir);
             _removed++;
         }
@@ -292,6 +351,18 @@ internal static class Cleanup
            .Append("\r\n");
     }
 
+    // Where the log goes depends on what just happened.
+    //
+    // On install it belongs beside the settings, in %AppData%\MacroShelf, with
+    // everything else the add-in writes.
+    //
+    // On uninstall that folder has just been deleted, and writing there would
+    // recreate it - which is exactly what 0.8.0.7 did: it removed the folder,
+    // then logged "removed settings folder" into a folder it had to recreate to
+    // say so. The uninstall log goes to %TEMP% instead, which also means it
+    // survives, so a failed uninstall on somebody else's machine can still be
+    // diagnosed. Writing it into a folder that is about to vanish would have
+    // been useless anyway.
     private static void Write(bool dryRun)
     {
         string summary = (dryRun ? "dry run: " : "") + _removed +
@@ -300,11 +371,19 @@ internal static class Cleanup
         Console.Out.WriteLine(summary);
         try
         {
-            string dir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "MacroShelf");
-            Directory.CreateDirectory(dir);
-            File.AppendAllText(Path.Combine(dir, "macroshelf.log"),
+            string path = _removedSettings
+                ? Path.Combine(Path.GetTempPath(), "macroshelf-uninstall.log")
+                : Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "MacroShelf", "macroshelf.log");
+
+            string dir = Path.GetDirectoryName(path);
+            // Only ever create the settings folder, never recreate a deleted one.
+            if (!_removedSettings && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            File.AppendAllText(path,
                 Log.ToString() + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +
                 "  cleanup: " + summary + "\r\n");
         }
