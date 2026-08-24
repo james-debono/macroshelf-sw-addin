@@ -128,11 +128,17 @@
                   Return="ignore" />
 
     <InstallExecuteSequence>
-      <!-- On install only. SOLIDWORKS must not be running, which the README
-           already requires, because it rewrites these keys on exit and would
-           put back anything deleted while it was open. -->
+      <!-- On install AND on a real uninstall. SOLIDWORKS must not be running,
+           which the README already requires, because it rewrites these keys on
+           exit and would put back anything deleted while it was open.
+
+           Running it on uninstall as well is what stops records outliving the
+           product. 0.8.0.3 and 0.8.0.4 cleaned up only on install, so
+           uninstalling MacroShelf left its tab records behind - and a tab
+           record whose toolbar record has gone has no title to draw, which is
+           where the stray "New Tab" rows in Tools > Customize came from. -->
       <Custom Action="RemoveLegacyToolbars" After="InstallInitialize">
-        NOT Installed
+        NOT Installed OR (REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE)
       </Custom>
 
       <!-- On a real uninstall only. UPGRADINGPRODUCTCODE is set during the

@@ -19,6 +19,11 @@ Const HKEY_CURRENT_USER = &H80000001
 ' touched, however many are registered.
 Const LEGACY_CLSID = "{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}"
 
+' The CLSID MacroShelf registers under from 0.8.0. Its own records are cleared
+' as well, so that uninstalling leaves nothing behind - see the note on
+' RemoveLegacyToolbars about why an orphaned tab record turns into a "New Tab".
+Const CURRENT_CLSID = "{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}"
+
 
 ' Removes the SOLIDWORKS UI records this add-in has left behind under either
 ' name, in every SOLIDWORKS version key present. Runs on install, with
@@ -45,6 +50,18 @@ Const LEGACY_CLSID = "{1E9C2E64-7A5B-4C0D-9E3F-58A61D2B8C90}"
 ' add-in registers its command group on the next start, and it is what clears
 ' duplicates. The cost is that toolbar position resets, which CONVENTIONS s5
 ' already treats as disposable.
+'
+' This runs on uninstall as well as install, which 0.8.0.3 and 0.8.0.4 did not
+' do. Leaving the records behind on uninstall is what produces the "New Tab"
+' rows in Tools > Customize: the tab record outlives the toolbar record that
+' held its title, so SOLIDWORKS has no name to draw and falls back to the
+' default. Clearing both stores together, in both directions, is what stops
+' that happening.
+'
+' What is deliberately NOT touched: a tab record whose RefName is "New Tab" or
+' anything else. Those are user space - somebody may have made their own tab -
+' and an installer has no business deleting them. Any already created have to
+' be removed by hand in Tools > Customize.
 Function RemoveLegacyToolbars()
     On Error Resume Next
     RemoveLegacyToolbars = 1
@@ -71,8 +88,10 @@ Function RemoveLegacyToolbars()
 End Function
 
 
-' Deletes toolbar records registered to the old MacroDeck CLSID. That GUID is
-' ours, so no other vendor's toolbar can match however many are registered.
+' Deletes toolbar records registered to either of this add-in's CLSIDs. Both
+' GUIDs are ours, so no other vendor's toolbar can match however many are
+' registered - the test machine had eleven belonging to SOLIDWORKS itself and
+' one to KeyShot, none of which are touched.
 Sub CleanToolbarStore(reg, base)
     On Error Resume Next
     Dim entries, j, entry, moduleName
@@ -82,7 +101,8 @@ Sub CleanToolbarStore(reg, base)
         entry = base & "\" & entries(j)
         moduleName = ""
         reg.GetStringValue HKEY_CURRENT_USER, entry, "ModuleName", moduleName
-        If StrComp(moduleName, LEGACY_CLSID, vbTextCompare) = 0 Then
+        If StrComp(moduleName, LEGACY_CLSID, vbTextCompare) = 0 Or _
+           StrComp(moduleName, CURRENT_CLSID, vbTextCompare) = 0 Then
             reg.DeleteKey HKEY_CURRENT_USER, entry
         End If
     Next
