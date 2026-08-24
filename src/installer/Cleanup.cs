@@ -61,6 +61,7 @@ internal static class Cleanup
             Run(dryRun);
             if (settings)
             {
+                RemoveLegacySettingsKeys(dryRun);
                 RemoveSettingsFolder(dryRun);
             }
         }
@@ -70,6 +71,55 @@ internal static class Cleanup
         }
         Write(dryRun);
         return 0;
+    }
+
+    // Settings written under HKCU by versions before 0.4.0, which stored a
+    // single library path in the registry rather than in a JSON file. Removed
+    // on a genuine uninstall only.
+    //
+    // NOT removed on install: Settings.Migrate still reads LibraryPath from
+    // here when there is no settings.json, which is how somebody upgrading
+    // from a very old build keeps their library. That path has to survive an
+    // upgrade and only disappear when the product is deliberately removed.
+    //
+    // This is where MacroDeck 0.6.2's library came from during testing on
+    // 2026-08-24, after %AppData%\MacroDeck had been migrated away: nothing
+    // was left in AppData, so it fell back to LibraryPath here. Both keys are
+    // this product's own, under its two names.
+    private static readonly string[] OurSettingsKeys =
+    {
+        @"Software\MacroDeck",
+        @"Software\MacroShelf"
+    };
+
+    private static void RemoveLegacySettingsKeys(bool dryRun)
+    {
+        foreach (string path in OurSettingsKeys)
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(path))
+            {
+                if (key == null)
+                {
+                    continue;
+                }
+            }
+            if (dryRun)
+            {
+                Note("would remove settings key HKCU\\" + path);
+                _removed++;
+                continue;
+            }
+            try
+            {
+                Registry.CurrentUser.DeleteSubKeyTree(path, false);
+                Note("removed settings key HKCU\\" + path);
+                _removed++;
+            }
+            catch (Exception ex)
+            {
+                Note("could not remove HKCU\\" + path + ": " + ex.Message);
+            }
+        }
     }
 
     // %AppData%\MacroShelf, on a genuine uninstall only - the MSI condition
@@ -94,12 +144,14 @@ internal static class Cleanup
         if (dryRun)
         {
             Note("would remove settings folder " + dir);
+            _removed++;
             return;
         }
         try
         {
             Directory.Delete(dir, true);
             Note("removed settings folder " + dir);
+            _removed++;
         }
         catch (Exception ex)
         {
@@ -243,7 +295,7 @@ internal static class Cleanup
     private static void Write(bool dryRun)
     {
         string summary = (dryRun ? "dry run: " : "") + _removed +
-                         " record(s) removed";
+                         " item(s) removed";
         Console.Out.Write(Log.ToString());
         Console.Out.WriteLine(summary);
         try
