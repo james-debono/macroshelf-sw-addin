@@ -63,9 +63,11 @@ internal static class Cleanup
         try
         {
             Run(dryRun);
+            // Always, on install as well as uninstall: this is deprecated data
+            // from builds before 0.4.0 and nothing is meant to keep it.
+            RemoveLegacySettingsKeys(dryRun);
             if (settings)
             {
-                RemoveLegacySettingsKeys(dryRun);
                 RemoveSettingsFolder(dryRun);
             }
         }
@@ -78,17 +80,23 @@ internal static class Cleanup
     }
 
     // Settings written under HKCU by versions before 0.4.0, which stored a
-    // single library path in the registry rather than in a JSON file. Removed
-    // on a genuine uninstall only.
+    // single library path in the registry rather than in a JSON file.
     //
-    // NOT removed on install: Settings.Migrate still reads LibraryPath from
-    // here when there is no settings.json, which is how somebody upgrading
-    // from a very old build keeps their library. That path has to survive an
-    // upgrade and only disappear when the product is deliberately removed.
+    // Removed on install as well as uninstall, decided 2026-08-24. It could
+    // have been kept on install so that Settings.Migrate could carry a
+    // pre-0.4.0 library forward, but 0.8.0 is the first public release and
+    // nobody outside this machine is on a build that old. Re-pointing a
+    // library takes two clicks; being left with deprecated data on your
+    // machine after uninstalling does not. Settings.Migrate's registry read
+    // went with this decision, so nothing reads it either.
     //
     // This is where MacroDeck 0.6.2's library came from during testing on
     // 2026-08-24, after %AppData%\MacroDeck had been migrated away: nothing
     // was left in AppData, so it fell back to LibraryPath here.
+    //
+    // Note this is a different thing from the %AppData%\MacroDeck to
+    // %AppData%\MacroShelf migration in Settings.MigrateLegacyFolder, which
+    // stays - that is the 0.6.2-to-0.8.0 path testers actually take.
     private const string LegacySettingsKey = @"Software\MacroDeck";
 
     // The value names this product wrote. Only these are deleted, and the key

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
-using Microsoft.Win32;
 
 namespace MacroShelf
 {
@@ -53,12 +52,10 @@ namespace MacroShelf
         // Tests point this at a scratch file so they never touch real settings.
         internal static string SettingsPathOverride;
 
-        // Both legacy names below are historical locations written by earlier
-        // versions. They are deliberately NOT renamed to MacroShelf: they name
-        // where old data actually sits, so renaming them would simply look in
-        // a place that has never existed and silently lose the settings.
-        private const string LegacyRegistryKey = "Software\\MacroDeck";
-        private const string LegacyLibraryPathValue = "LibraryPath";
+        // A historical location written by earlier versions. Deliberately NOT
+        // renamed to MacroShelf: it names where old data actually sits, so
+        // renaming it would simply look in a place that has never existed and
+        // silently lose the settings.
         private const string LegacyFolderName = "MacroDeck";
 
         // Tests point this at a scratch folder so the migration never touches
@@ -180,26 +177,21 @@ namespace MacroShelf
             return map;
         }
 
-        // Pre-0.4.0 versions stored a single library path in the registry.
+        // Pre-0.4.0 versions stored a single library path in HKCU under
+        // Software\MacroDeck, and this used to read it forward.
+        //
+        // Dropped for 0.8.0. The installer now removes that key on install as
+        // well as uninstall, so there is nothing left to read: 0.8.0 is the
+        // first public release, nobody outside this machine is on a build that
+        // old, and leaving deprecated data behind was judged worse than asking
+        // somebody to re-point a library. Keeping the read would have been code
+        // for a case the installer has just made impossible.
+        //
+        // The %AppData%\MacroDeck to %AppData%\MacroShelf migration is a
+        // different thing and stays - see MigrateLegacyFolder.
         private static SettingsData Migrate()
         {
-            SettingsData data = new SettingsData();
-            try
-            {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(LegacyRegistryKey))
-                {
-                    if (key != null)
-                    {
-                        string legacy = key.GetValue(LegacyLibraryPathValue) as string;
-                        if (!string.IsNullOrEmpty(legacy))
-                        {
-                            data.Libraries.Add(legacy);
-                        }
-                    }
-                }
-            }
-            catch { }
-            return data;
+            return new SettingsData();
         }
 
         // 0.8.0 renamed the add-in, which moved settings from
