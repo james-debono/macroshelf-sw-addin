@@ -37,13 +37,22 @@ Dates are taken from the built installers.
   CommandManager tabs to an add-in's COM identity, so simply renaming the add-in
   left it convinced this was the same thing under a new name — and it kept
   showing a MacroDeck tab beside the MacroShelf one. MacroShelf now registers
-  under a new identity, so the old tab is not drawn at all.
+  under a new identity, and the installer clears the tab records the old name
+  left behind, so nothing of MacroDeck's remains on the toolbar.
 
   Two consequences worth knowing about, both one-off:
 
   - **The toolbar's position resets** the first time you run 0.8.0.
   - **You may need to tick MacroShelf once** in *Tools ▸ Add-Ins* if it does not
     load on the first start after upgrading.
+
+- **Uninstalling now removes everything.** Previously it left settings, and the
+  tabs it had added to SOLIDWORKS, on your machine. Removing MacroShelf now
+  takes its settings folder, its SOLIDWORKS toolbar and tab records, and the
+  library path that versions before 0.4.0 kept in the registry.
+
+  **Upgrading is unaffected** — your library list and per-macro toggles survive
+  an upgrade, and only a deliberate uninstall discards them.
 
 ---
 
