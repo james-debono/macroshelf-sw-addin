@@ -105,7 +105,7 @@
 
     <!-- Two cleanups WiX cannot express declaratively, because neither target
          is created by the installer and neither name is known until run time.
-         See src\installer\cleanup.vbs.
+         See src\installer\Cleanup.cs.
 
          Both are Impersonate="yes": they work on HKCU and %AppData%, which
          must be the installing user's, not the elevated account's. Both are

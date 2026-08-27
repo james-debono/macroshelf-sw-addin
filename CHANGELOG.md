@@ -18,9 +18,10 @@ Dates are taken from the built installers.
   three book spines on a shelf.
 
   The add-in, the installer, the DLL and the settings folder all take the new
-  name. **The add-in's CLSID and the installer's UpgradeCode are unchanged**, so
-  this installs over an earlier version as a normal upgrade rather than sitting
-  alongside it.
+  name. **The installer's UpgradeCode is unchanged**, so this installs over an
+  earlier version as a normal upgrade rather than sitting alongside it. The
+  add-in's COM identity *did* change, which is what stops SOLIDWORKS treating
+  this as MacroDeck under a new label — see below.
 
 - **Your settings come across automatically.** Preferences moved from
   `%AppData%\MacroDeck\` to `%AppData%\MacroShelf\`. On first run the old
