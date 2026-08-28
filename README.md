@@ -6,6 +6,12 @@ as a toolbar button with its own icon — no more digging through Tools > Macro 
 
 Works with SolidWorks 2022, 2024 and 2025.
 
+> **Need macros to fill it with?** The [MacroShelf
+> Collection](https://github.com/james-debono/macroshelf-collection-sw-macro-library) is ten
+> ready-to-use macros in one download, already structured as a MacroShelf
+> library — unzip it, point MacroShelf at the folder, and the toolbar fills
+> itself in. It is also the quickest way to see what this add-in does.
+
 ## Install (double-click the MSI)
 
 The `.msi` from the [latest release](../../releases/latest) is the only file you
