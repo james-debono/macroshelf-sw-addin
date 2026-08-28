@@ -9,7 +9,21 @@ Dates are taken from the built installers.
 
 ---
 
-## 0.8.0 — unreleased
+## 0.8.1 — unreleased
+
+- **Installer housekeeping only. Nothing changes in how MacroShelf behaves.**
+  The three installer components carried the same identifiers they had under the
+  old name, while the files and registry keys they install had all moved. That
+  works when upgrading, which is why it was not noticed, but it leaves Windows
+  Installer holding a stale idea of where those pieces live — the sort of thing
+  that surfaces much later, on a repair or a reinstall, as a file that will not
+  reinstall because Windows believes it is already there.
+
+  Upgrading from 0.8.0 needs nothing from you, and your settings are untouched.
+
+---
+
+## 0.8.0 — 2026-08-26
 
 - **Renamed from MacroDeck to MacroShelf.** The previous name belongs to an
   existing product — Macro Deck by SuchByte, in the Stream Deck space — so it

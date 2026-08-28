@@ -35,7 +35,16 @@
     </Directory>
 
     <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="CmpMacroShelfDll" Guid="7C21A8F4-0B3D-4E96-A1C7-D84E52F90B23">
+      <!-- New component GUIDs for 0.8.0. Windows Installer requires a component
+           GUID to be unique to its keypath, and all three keypaths moved with
+           the rename: this one from MacroDeck\MacroDeck.dll to
+           MacroShelf\MacroShelf.dll, and the two registration components with
+           the changed CLSID. Reusing the old GUIDs worked for the upgrade,
+           because MajorUpgrade removes the old product first and the components
+           are never registered at once - but it left the installer's
+           component-to-path map disagreeing with reality, which surfaces on a
+           later repair or reinstall rather than on the first install. -->
+      <Component Id="CmpMacroShelfDll" Guid="2D9F4B18-6E35-4A72-B8C1-90E47D3A5F26">
         <File Id="FileMacroShelfDll" Source="$(var.BinDir)\MacroShelf.dll" KeyPath="yes" />
       </Component>
       <!-- The SolidWorks.Interop assemblies are deliberately NOT installed.
@@ -44,7 +53,7 @@
            why a copy at install time could not work in any case. -->
 
       <!-- .NET COM registration (what RegAsm /codebase would write). -->
-      <Component Id="CmpComRegistration" Guid="E16B490A-8D57-4C23-97F0-A2C48B35E961">
+      <Component Id="CmpComRegistration" Guid="5A8C31E7-42D9-4B60-97F3-E1D82C4B7A05">
         <RegistryKey Root="HKCR" Key="MacroShelf.Addin">
           <RegistryValue Type="string" Value="MacroShelf.MacroShelfAddin" KeyPath="yes" />
           <RegistryKey Key="CLSID">
@@ -87,7 +96,7 @@
       <!-- Load-at-startup flag for the installing user (same behaviour as the
            bat installer). HKCU inside a per-machine package is intentional;
            the matching ICE38/57/64 checks are suppressed at link time. -->
-      <Component Id="CmpStartupRegistration" Guid="48A2D7F3-C90E-4B18-A65D-7F30B1E52C09">
+      <Component Id="CmpStartupRegistration" Guid="9F27B5C4-8A16-4D3E-B052-7C69E1F40D83">
         <RegistryValue Root="HKCU"
                        Key="Software\SolidWorks\AddInsStartup\{7B3E9A21-5C48-4D6F-9E82-3A1C7F5D0B64}"
                        Type="integer" Value="1" KeyPath="yes" />
@@ -103,19 +112,20 @@
     <Icon Id="MacroShelfIco" SourceFile="$(var.InstallerDir)\macroshelf.ico" />
     <Property Id="ARPPRODUCTICON" Value="MacroShelfIco" />
 
-    <!-- Two cleanups WiX cannot express declaratively, because neither target
-         is created by the installer and neither name is known until run time.
-         See src\installer\Cleanup.cs.
+    <!-- Two cleanups WiX cannot express declaratively, because neither target is
+         created by the installer and neither name is known until run time. See
+         src\installer\Cleanup.cs.
 
-         Both are Impersonate="yes": they work on HKCU and %AppData%, which
-         must be the installing user's, not the elevated account's. Both are
+         A compiled helper rather than a script custom action: the VBScript
+         version used WMI's StdRegProv, which was measured reporting success for
+         deletions that never happened, could not see a key PowerShell read
+         without trouble, and has a non-recursive DeleteKey that could never have
+         removed a tab record - they all carry GB0/GB1 subkeys.
+
+         Both are Impersonate="yes": they work on HKCU and %AppData%, which must
+         be the installing user's, not the elevated account's. Both are
          Return="ignore" - a dormant registry key or a leftover settings folder
          is never worth failing an install or an uninstall over. -->
-    <!-- A compiled helper, not a script custom action. The VBScript version used
-         WMI's StdRegProv, which was measured reporting success for deletions
-         that never happened, could not see a key PowerShell read without
-         trouble, and has a non-recursive DeleteKey that could never remove a
-         tab record - they all carry GB0/GB1 subkeys. See src\installer\Cleanup.cs. -->
     <Binary Id="CleanupExe" SourceFile="$(var.BinDir)\MacroShelfCleanup.exe" />
 
     <CustomAction Id="RemoveLegacyToolbars"
