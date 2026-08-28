@@ -35,7 +35,7 @@
     </Directory>
 
     <DirectoryRef Id="INSTALLFOLDER">
-      <!-- New component GUIDs for 0.8.0. Windows Installer requires a component
+      <!-- New component GUIDs for 0.8.1. Windows Installer requires a component
            GUID to be unique to its keypath, and all three keypaths moved with
            the rename: this one from MacroDeck\MacroDeck.dll to
            MacroShelf\MacroShelf.dll, and the two registration components with

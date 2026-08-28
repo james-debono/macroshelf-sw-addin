@@ -9,7 +9,7 @@ Dates are taken from the built installers.
 
 ---
 
-## 0.8.1 — unreleased
+## 0.8.1 — 2026-08-28
 
 - **Installer housekeeping only. Nothing changes in how MacroShelf behaves.**
   The three installer components carried the same identifiers they had under the
