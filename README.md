@@ -4,8 +4,8 @@ MacroShelf is a SolidWorks add-in that turns a folder of macros on your PC into 
 CommandManager tab. Point it at your macro library once, and every macro shows up
 as a toolbar button with its own icon — no more digging through Tools > Macro > Run.
 
-**Tested on SolidWorks 2022, 2024 and 2025** — those are the versions I
-have. Other versions are likely to work; they are simply untested.
+**Tested on SolidWorks 2022, 2024 and 2025.** Other versions are likely to
+work; they are simply untested.
 
 > **Need macros to fill it with?** The [MacroShelf
 > Collection](https://github.com/james-debono/macroshelf-collection-sw-macro-library) is ten
