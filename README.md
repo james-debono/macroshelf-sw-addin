@@ -8,7 +8,7 @@ as a toolbar button with its own icon — no more digging through Tools > Macro 
 work; they are simply untested.
 
 > **Need macros to fill it with?** The [MacroShelf
-> Collection](https://github.com/james-debono/macroshelf-collection-sw-macro-library) is ten
+> Collection](https://github.com/james-debono/macroshelf-collection-sw-macro-library) is a set of
 > ready-to-use macros in one download, already structured as a MacroShelf
 > library — unzip it, point MacroShelf at the folder, and the toolbar fills
 > itself in. It is also the quickest way to see what this add-in does.
